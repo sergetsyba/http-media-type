@@ -2,15 +2,21 @@
 	"name": "http-media-type",
 	"version": "0.0.0",
 	"description": "Utility library for processing media types of HTTP requests and responses.",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
 	"keywords": [
 		"media-type",
 		"content-type",
 		"http"
 	],
-	"author": "Serge Tsyba",
-	"license": "ISC"
+	"author": {
+		"name": "Serge Tsyba",
+		"email": "tsyba@me.com"
+	},
+	"license": "ISC",
+	"devDependencies": {
+		"mocha": "^8.3.0"
+	},
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	}
 }
