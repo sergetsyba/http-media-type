@@ -2,7 +2,44 @@ import MediaType from '../sources/media-type.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
+	describe('creates media type without parameters', () => {
+		it('wildcard media type', () => {
+			const mediaType = new MediaType()
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: '*',
+				subtype: '*',
+				suffix: null,
+				parameters: {}
+			})
+		})
+	})
+
 	describe('creates media type with parameters', () => {
+		it('with all parameters', () => {
+			const mediaType = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+		})
+
 		it('with application type when type is not specified', () => {
 			const mediaType = new MediaType({
 				subtype: 'vnd.company.content',

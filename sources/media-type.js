@@ -1,9 +1,17 @@
 export default class MediaType {
 	constructor(parameters) {
-		this.type = parameters.type || 'application'
-		this.subtype = parameters.subtype || '*'
-		this.suffix = parameters.suffix || null
-		this.parameters = parameters.parameters || {}
+		if (parameters == null) {
+			this.type = '*'
+			this.subtype = '*'
+			this.suffix = null
+			this.parameters = {}
+		}
+		else if (typeof parameters === 'object') {
+			this.type = parameters.type || 'application'
+			this.subtype = parameters.subtype || '*'
+			this.suffix = parameters.suffix || null
+			this.parameters = parameters.parameters || {}
+		}
 	}
 
 	get formatted() {
