@@ -58,7 +58,6 @@ describe('MediaType', () => {
 
 	describe('creates media type from combined arguments', () => {
 		it('with all arguments', () => {
-			const mt = new MediaType('text', )
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',

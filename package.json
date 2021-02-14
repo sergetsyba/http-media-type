@@ -15,7 +15,8 @@
 	"type": "module",
 	"devDependencies": {
 		"mocha": "^8.3.0",
-		"assert": "^2.0.0"
+		"assert": "^2.0.0",
+		"jsdoc": "^3.6.6"
 	},
 	"main": "index.js",
 	"scripts": {
