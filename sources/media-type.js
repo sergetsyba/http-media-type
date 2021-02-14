@@ -53,7 +53,6 @@ export default class MediaType {
 		}
 	}
 
-
 	/**
 	 * @returns {string} Textual representation of this media type.
 	 */
@@ -69,4 +68,30 @@ export default class MediaType {
 
 		return formatted
 	}
+
+	/**
+	 * Checks whether this media type is equal to the specified one.
+	 * @param {MediaType} mediaType
+	 * @returns {boolean} Returns true when this media type is equal to the
+	 *		specified one; returns false otherwise.
+	 */
+	isEqual(mediaType) {
+		return this.type === mediaType.type
+			&& this.subtype === mediaType.subtype
+			&& this.suffix === mediaType.suffix
+			&& isObjectsMatch(this.parameters, mediaType.parameters,
+				(parameter1, parameter2) =>
+					parameter1 === parameter2)
+	}
+}
+
+function isObjectsMatch(object1, object2, isValuesMatch) {
+	const keys1 = Object.keys(object1)
+	const keys2 = Object.keys(object2)
+	if (keys1.length !== keys2.length) {
+		return false
+	}
+
+	return keys1.every((key) =>
+		isValuesMatch(object1[key], object2[key]))
 }

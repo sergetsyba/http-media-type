@@ -198,4 +198,191 @@ describe('MediaType', () => {
 				'application/vnd.company.content')
 		})
 	})
+
+	describe('checks media type equality', () => {
+		it('verifies equality with same media type', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2))
+		})
+
+		it('verifies equality with same media type without parameters', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format'
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format'
+			})
+
+			assert(mediaType1.isEqual(mediaType2))
+		})
+
+		it('does not verify equality with a different type', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'program',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+
+		it('does not verify equality with a different subtype', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.corporation.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+
+		it('does not verify equality with a different suffix', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'another-format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+
+		it('does not verify equality with different parameter count', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value2',
+					param2: 'value2',
+					param3: 'value3'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+
+		it('does not verify equality with different parameters', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param7: 'value7',
+					param2: 'value2'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+
+		it('does not verify equality with different parameter values', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value7'
+				}
+			})
+
+			assert(mediaType1.isEqual(mediaType2) === false)
+		})
+	})
 })
