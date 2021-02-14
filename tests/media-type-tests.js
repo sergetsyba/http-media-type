@@ -2,8 +2,48 @@ import MediaType from '../sources/media-type.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
-	describe('creates media type without parameters', () => {
-		it('wildcard media type', () => {
+	describe('creates media from separate arguments', () => {
+		it('with all arguments', () => {
+			const mediaType = new MediaType('text', 'plain', {
+				charset: 'utf-8'
+			})
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'text',
+				subtype: 'plain',
+				suffix: null,
+				parameters: {
+					charset: 'utf-8'
+				}
+			})
+		})
+
+		it('with type and subtype arguments', () => {
+			const mediaType = new MediaType('text', 'plain')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'text',
+				subtype: 'plain',
+				suffix: null,
+				parameters: {}
+			})
+		})
+
+		it('with type argument', () => {
+			const mediaType = new MediaType('text')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'text',
+				subtype: '*',
+				suffix: null,
+				parameters: {}
+			})
+		})
+
+		it('with no arguments', () => {
 			const mediaType = new MediaType()
 
 			Object.setPrototypeOf(mediaType, Object.prototype)
@@ -16,8 +56,9 @@ describe('MediaType', () => {
 		})
 	})
 
-	describe('creates media type with parameters', () => {
-		it('with all parameters', () => {
+	describe('creates media type from combined arguments', () => {
+		it('with all arguments', () => {
+			const mt = new MediaType('text', )
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -91,7 +132,7 @@ describe('MediaType', () => {
 	})
 
 	describe('formats media type', () => {
-		it('full', () => {
+		it('with all parameters', () => {
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -148,7 +189,7 @@ describe('MediaType', () => {
 				'application/vnd.company.content+format')
 		})
 
-		it('minimal', () => {
+		it('with minimal parameters', () => {
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content'
