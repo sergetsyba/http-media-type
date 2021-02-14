@@ -57,7 +57,7 @@ describe('MediaType', () => {
 	})
 
 	describe('creates media type from combined arguments', () => {
-		it('with all arguments', () => {
+		it('with all properties', () => {
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -130,8 +130,97 @@ describe('MediaType', () => {
 		})
 	})
 
+	describe('parses media type', () => {
+		it('with all properties', () => {
+			const mediaType = MediaType.parse('application/vnd.company.content+format; ' +
+				'param1=value1; ' +
+				'param2=value2')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+		})
+
+		it('without suffix', () => {
+			const mediaType = MediaType.parse('application/vnd.company.content; ' +
+				'param1=value1; ' +
+				'param2=value2')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: null,
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+		})
+
+		it('without parameters', () => {
+			const mediaType = MediaType.parse('application/vnd.company.content+format')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {}
+			})
+		})
+
+		it('with minimal properties', () => {
+			const mediaType = MediaType.parse('application/vnd.company.content')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: null,
+				parameters: {}
+			})
+		})
+
+		it('with wildcard subtype', () => {
+			const mediaType = MediaType.parse('application/*+format; ' +
+				'param1=value1; ' +
+				'param2=value2')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: '*',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+		})
+
+		it('wildcard', () => {
+			const mediaType = MediaType.parse('*/*')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: '*',
+				subtype: '*',
+				suffix: null,
+				parameters: {}
+			})
+		})
+	})
+
 	describe('formats media type', () => {
-		it('with all parameters', () => {
+		it('with all properties', () => {
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -144,22 +233,6 @@ describe('MediaType', () => {
 
 			assert.equal(mediaType.formatted,
 				'application/vnd.company.content+format; ' +
-				'param1=value1; param2=value2')
-		})
-
-		it('with wildcard subtype', () => {
-			const mediaType = new MediaType({
-				type: 'application',
-				subtype: '*',
-				suffix: 'format',
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
-			})
-
-			assert.equal(mediaType.formatted,
-				'application/*+format; ' +
 				'param1=value1; param2=value2')
 		})
 
@@ -188,7 +261,7 @@ describe('MediaType', () => {
 				'application/vnd.company.content+format')
 		})
 
-		it('with minimal parameters', () => {
+		it('with minimal properties', () => {
 			const mediaType = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content'
@@ -196,6 +269,28 @@ describe('MediaType', () => {
 
 			assert.equal(mediaType.formatted,
 				'application/vnd.company.content')
+		})
+
+		it('with wildcard subtype', () => {
+			const mediaType = new MediaType({
+				type: 'application',
+				subtype: '*',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			assert.equal(mediaType.formatted,
+				'application/*+format; ' +
+				'param1=value1; param2=value2')
+		})
+
+		it('wildcard', () => {
+			const mediaType = new MediaType()
+			assert.equal(mediaType.formatted,
+				'*/*')
 		})
 	})
 

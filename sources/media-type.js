@@ -54,6 +54,25 @@ export default class MediaType {
 	}
 
 	/**
+	 * Returns a new instance of MediaType parsed from the specified textual
+	 * representation of a media type.
+	 * @param {string} text - Textual representation of a media type.
+	 * @returns {MediaType} Parsed instance of a MediaType.
+	 */
+	static parse(text) {
+		const {groups: properties} = contentTypeRegex.exec(text)
+		const parameters = {}
+
+		matchRepeated(parameterRegex, text, (match) => {
+			const {parameter, value} = match.groups
+			parameters[parameter] = value
+		})
+
+		properties.parameters = parameters
+		return new MediaType(properties)
+	}
+
+	/**
 	 * @returns {string} Textual representation of this media type.
 	 */
 	get formatted() {
@@ -85,6 +104,9 @@ export default class MediaType {
 	}
 }
 
+const contentTypeRegex = /(?<type>(\w+)|\*)\/(?<subtype>([\w.]+)|\*)(\+(?<suffix>\w+))?/
+const parameterRegex = /\s*;\s*((?<parameter>\w+)\s*=\s*(?<value>\w+))/g
+
 function isObjectsMatch(object1, object2, isValuesMatch) {
 	const keys1 = Object.keys(object1)
 	const keys2 = Object.keys(object2)
@@ -94,4 +116,12 @@ function isObjectsMatch(object1, object2, isValuesMatch) {
 
 	return keys1.every((key) =>
 		isValuesMatch(object1[key], object2[key]))
+}
+
+function matchRepeated(regex, text, process) {
+	let match = regex.exec(text)
+	while (match != null) {
+		process(match)
+		match = regex.exec(text)
+	}
 }
