@@ -3,7 +3,7 @@ import ParseError from '../sources/parse-error.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
-	describe('creates media from separate arguments', () => {
+	describe('creates media type from separate arguments', () => {
 		it('with all arguments', () => {
 			const mediaType = new MediaType('text', 'plain', {
 				charset: 'utf-8'
@@ -131,7 +131,7 @@ describe('MediaType', () => {
 		})
 	})
 
-	describe('returns registration tree type', () => {
+	describe('gets registration tree type', () => {
 		it('with standards tree', () => {
 			const mediaType = new MediaType('application','json')
 			assert.equal(mediaType.registrationTree, 'standards')
@@ -246,8 +246,44 @@ describe('MediaType', () => {
 			})
 		})
 
-		it('fails for invalid media type format', () => {
-			const mediaType = 'application+vnd.company.content/format: param1=value1'
+		it('with non-alphanumeric characters', () => {
+			const mediaType = MediaType.parse('application!#$&-^_/vnd.company.!#$&-^_content+format!#$&-^_;' +
+				'param1=value1!#$&-^_;' +
+				'param2=value2!#$&-^_')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application!#$&-^_',
+				subtype: 'vnd.company.!#$&-^_content',
+				suffix: 'format!#$&-^_',
+				parameters: {
+					param1: 'value1!#$&-^_',
+					param2: 'value2!#$&-^_'
+				}
+			})
+		})
+
+		it('with subtype with multiple plus signs', () => {
+			const mediaType = MediaType.parse('application/vnd.company+corporation.content+media+format')
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company+corporation.content+media',
+				suffix: 'format',
+				parameters: {}
+			})
+		})
+
+		it('fails with subtype containing slashes', () => {
+			const mediaType = 'application/vnd/company/content+format; param1=value1'
+			assert.throws(() => {
+				MediaType.parse(mediaType)
+			}, ParseError)
+		})
+
+		it('fails with subtype containing spaces', () => {
+			const mediaType = 'application/vnd company content+format; param1=value1'
 			assert.throws(() => {
 				MediaType.parse(mediaType)
 			}, ParseError)

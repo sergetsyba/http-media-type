@@ -3,6 +3,7 @@ import ParseError from './parse-error.js'
 export default class MediaType {
 	/**
 	 * Creates a new instance of MediaType.
+	 *
 	 * @param {object} properties
 	 * @param {string} [properties.type=application] - Type of this media type.
 	 * 		When not specified, uses 'application' type.
@@ -13,6 +14,7 @@ export default class MediaType {
 	 * @param {object=} [properties.properties] - Parameters of this media type.
 	 *//**
 	 * Creates a new instance of MediaType.
+	 *
 	 * When no arguments specified, creates a wildcard media type (*//*).
 	 * @param {string=} [type] - Type of this media type.
 	 *		When not specified, creates a wildcard media type (*//*).
@@ -57,23 +59,50 @@ export default class MediaType {
 	/**
 	 * Returns a new instance of MediaType parsed from the specified textual
 	 * representation of a media type.
+	 * This implementation is less restrictive than media type specification
+	 * in RFC 6838 section 4.2. It allows any characters other than white
+	 * space and / to be used in type, subtype and suffix, as well as does
+	 * not impose any length limits on those values.
+	 *
 	 * @param {string} text - Textual representation of a media type.
 	 * @returns {MediaType} Parsed instance of a MediaType.
 	 */
 	static parse(text) {
-		const match = contentTypeRegex.exec(text)
-		if (match == null) {
+		const parametersIndex = findIndex(text, ';')
+
+		// ensure base text does not include white space
+		const mediaType = text.substring(0, parametersIndex)
+		if (/\s/.test(text.substring(0, parametersIndex))) {
 			throw new ParseError('Malformed media type: ' + text)
 		}
 
+		// ensure base text includes only a single slash
+		let [type, subtype, ...rest] = mediaType.split('/')
+		if (rest.length > 0) {
+			throw new ParseError('Malformed media type: ' + text)
+		}
+
+		let suffix = null
+		const suffixIndex = subtype.lastIndexOf('+')
+		if (suffixIndex > -1) {
+			suffix = subtype.substring(suffixIndex + 1)
+			subtype = subtype.substring(0, suffixIndex)
+		}
+
 		const parameters = {}
-		matchRepeated(parameterRegex, text, (match) => {
-			const {parameter, value} = match.groups
-			properties.parameters[parameter] = value
-		})
+		for (let parameterIndex = parametersIndex; parameterIndex < text.length; ) {
+			const valueIndex = findIndex(text, '=', parameterIndex + 1)
+			const parameter = text.substring(parameterIndex + 1, valueIndex)
+				.trim()
+
+			parameterIndex = findIndex(text, ';', valueIndex)
+			parameters[parameter] = text.substring(valueIndex + 1, parameterIndex)
+		}
 
 		return new MediaType({
-			...match.groups,
+			type,
+			subtype,
+			suffix,
 			parameters
 		})
 	}
@@ -91,6 +120,7 @@ export default class MediaType {
 	 * has an unknown registration tree prefix, this property contains the prefix.
 	 * Note: whenever subtype this media type contains dots, character sequence
 	 * until the first dot is considered a registration tree prefix.
+	 *
 	 * @type {(RegistrationTree|string)}
 	 */
 	get registrationTree() {
@@ -131,6 +161,7 @@ export default class MediaType {
 
 	/**
 	 * Checks whether this media type is equal to the specified one.
+	 *
 	 * @param {MediaType} mediaType
 	 * @returns {boolean} Returns true when this media type is equal to the
 	 *		specified one; returns false otherwise.
@@ -161,9 +192,6 @@ const RegistrationTree = Object.freeze({
 	unregistered: 'unregistered'
 })
 
-const contentTypeRegex = /^(?<type>(\w+)|\*)\/(?<subtype>([\w.]+)|\*)(\+(?<suffix>\w+))?/
-const parameterRegex = /\s*;\s*((?<parameter>\w+)\s*=\s*(?<value>\w+))/g
-
 function isObjectsMatch(object1, object2, isValuesMatch) {
 	const keys1 = Object.keys(object1)
 	const keys2 = Object.keys(object2)
@@ -175,10 +203,13 @@ function isObjectsMatch(object1, object2, isValuesMatch) {
 		isValuesMatch(object1[key], object2[key]))
 }
 
-function matchRepeated(regex, text, process) {
-	let match = regex.exec(text)
-	while (match != null) {
-		process(match)
-		match = regex.exec(text)
+function findIndex(text, character, start = 0, end = text.length) {
+	let index = start
+	for (; index < end; ++index) {
+		if (text.charAt(index) === character) {
+			break
+		}
 	}
+
+	return index;
 }
