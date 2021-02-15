@@ -1,23 +1,22 @@
-
 export default class MediaType {
 	/**
 	 * Creates a new instance of MediaType.
 	 * @param {object} properties
-	 * @param {string} [properties.type] - Type of this media type.
+	 * @param {string} [properties.type=application] - Type of this media type.
 	 * 		When not specified, uses 'application' type.
-	 * @param {string} [properties.subtype] - Subtype of this media type.
+	 * @param {string} [properties.subtype=*] - Subtype of this media type.
 	 * 		When not specified, uses wildcard subtype (type/*)
-	 * @param {string} [properties.suffix] - Suffix of this media type.
+	 * @param {string} [properties.suffix=null] - Suffix of this media type.
 	 * 		When not specified, uses null.
-	 * @param {object} [properties.properties] - Parameters of this media type.
+	 * @param {object=} [properties.properties] - Parameters of this media type.
 	 *//**
 	 * Creates a new instance of MediaType.
 	 * When no arguments specified, creates a wildcard media type (*//*).
-	 * @param {string} [type] - Type of this media type.
+	 * @param {string=} [type] - Type of this media type.
 	 *		When not specified, creates a wildcard media type (*//*).
-	 * @param {string} [subtype] - Subtype of this media type.
+	 * @param {string} [subtype=*] - Subtype of this media type.
 	 *		When not specified, creates a media type with a wildcard subtype (type//*).
-	 * @param {object} [parameters] - Parameters of this media type.
+	 * @param {object=} [parameters] - Parameters of this media type.
 	 */
 	constructor(type, subtype, parameters) {
 		if (arguments.length === 1
@@ -74,15 +73,18 @@ export default class MediaType {
 
 	/**
 	 * IANA registration tree types.
-	 * @return {object}
+	 * @type {object}
 	 */
 	static get RegistrationTree() {
 		return RegistrationTree
 	}
 
 	/**
-	 * IANA registration tree type of this media type.
-	 * @return {RegistrationTree} Registration tree of this media type.
+	 * IANA registration tree type of this media type. When this media type
+	 * has an unknown registration tree prefix, this property contains the prefix.
+	 * Note: whenever subtype this media type contains dots, character sequence
+	 * until the first dot is considered a registration tree prefix.
+	 * @type {(RegistrationTree|string)}
 	 */
 	get registrationTree() {
 		const dotIndex = this.subtype.indexOf('.')
@@ -104,7 +106,8 @@ export default class MediaType {
 	}
 
 	/**
-	 * @returns {string} Textual representation of this media type.
+	 * Textual representation of this media type.
+	 * @type {string}
 	 */
 	get formatted() {
 		let formatted = this.type + '/' + this.subtype
@@ -136,7 +139,11 @@ export default class MediaType {
 }
 
 /**
- * Enumerated types IANA registration trees.
+ * @typedef {(standards|vendor|personal|unregistered)} RegistrationTree
+ */
+
+/**
+ * Enumerated types of IANA registration trees.
  * @type {object}
  * @enum
  */

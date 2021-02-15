@@ -14,9 +14,9 @@
 	"license": "ISC",
 	"type": "module",
 	"devDependencies": {
-		"mocha": "^8.3.0",
 		"assert": "^2.0.0",
-		"jsdoc": "^3.6.6"
+		"jsdoc": "^3.6.6",
+		"mocha": "^8.3.0"
 	},
 	"main": "index.js",
 	"scripts": {
