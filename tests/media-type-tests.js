@@ -1,4 +1,5 @@
 import MediaType from '../sources/media-type.js'
+import ParseError from '../sources/parse-error.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
@@ -243,6 +244,13 @@ describe('MediaType', () => {
 				suffix: null,
 				parameters: {}
 			})
+		})
+
+		it('fails for invalid media type format', () => {
+			const mediaType = 'application+vnd.company.content/format: param1=value1'
+			assert.throws(() => {
+				MediaType.parse(mediaType)
+			}, ParseError)
 		})
 	})
 

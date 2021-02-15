@@ -1,3 +1,5 @@
+import ParseError from './parse-error.js'
+
 export default class MediaType {
 	/**
 	 * Creates a new instance of MediaType.
@@ -59,16 +61,21 @@ export default class MediaType {
 	 * @returns {MediaType} Parsed instance of a MediaType.
 	 */
 	static parse(text) {
-		const {groups: properties} = contentTypeRegex.exec(text)
-		const parameters = {}
+		const match = contentTypeRegex.exec(text)
+		if (match == null) {
+			throw new ParseError('Malformed media type: ' + text)
+		}
 
+		const parameters = {}
 		matchRepeated(parameterRegex, text, (match) => {
 			const {parameter, value} = match.groups
-			parameters[parameter] = value
+			properties.parameters[parameter] = value
 		})
 
-		properties.parameters = parameters
-		return new MediaType(properties)
+		return new MediaType({
+			...match.groups,
+			parameters
+		})
 	}
 
 	/**
@@ -154,7 +161,7 @@ const RegistrationTree = Object.freeze({
 	unregistered: 'unregistered'
 })
 
-const contentTypeRegex = /(?<type>(\w+)|\*)\/(?<subtype>([\w.]+)|\*)(\+(?<suffix>\w+))?/
+const contentTypeRegex = /^(?<type>(\w+)|\*)\/(?<subtype>([\w.]+)|\*)(\+(?<suffix>\w+))?/
 const parameterRegex = /\s*;\s*((?<parameter>\w+)\s*=\s*(?<value>\w+))/g
 
 function isObjectsMatch(object1, object2, isValuesMatch) {
