@@ -130,6 +130,33 @@ describe('MediaType', () => {
 		})
 	})
 
+	describe('returns registration tree type', () => {
+		it('with standards tree', () => {
+			const mediaType = new MediaType('application','json')
+			assert.equal(mediaType.registrationTree, 'standards')
+		})
+
+		it('with vendor tree', () => {
+			const mediaType = new MediaType('application', 'vnd.company.content')
+			assert.equal(mediaType.registrationTree, 'vendor')
+		})
+
+		it('with personal tree', () => {
+			const mediaType = new MediaType('application', 'prs.person.content')
+			assert.equal(mediaType.registrationTree, 'personal')
+		})
+
+		it('with unregistered tree', () => {
+			const mediaType = new MediaType('application', 'x.content')
+			assert.equal(mediaType.registrationTree, 'unregistered')
+		})
+
+		it('with other tree', () => {
+			const mediaType = new MediaType('application', 'unk.content')
+			assert.equal(mediaType.registrationTree, 'unk')
+		})
+	})
+
 	describe('parses media type', () => {
 		it('with all properties', () => {
 			const mediaType = MediaType.parse('application/vnd.company.content+format; ' +

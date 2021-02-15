@@ -73,6 +73,37 @@ export default class MediaType {
 	}
 
 	/**
+	 * IANA registration tree types.
+	 * @return {object}
+	 */
+	static get RegistrationTree() {
+		return RegistrationTree
+	}
+
+	/**
+	 * IANA registration tree type of this media type.
+	 * @return {RegistrationTree} Registration tree of this media type.
+	 */
+	get registrationTree() {
+		const dotIndex = this.subtype.indexOf('.')
+		if (dotIndex < 0) {
+			return RegistrationTree.standards
+		}
+
+		const treePrefix = this.subtype.substring(0, dotIndex)
+		switch (treePrefix) {
+			case 'vnd':
+				return RegistrationTree.vendor
+			case 'prs':
+				return RegistrationTree.personal
+			case 'x':
+				return RegistrationTree.unregistered
+			default:
+				return treePrefix
+		}
+	}
+
+	/**
 	 * @returns {string} Textual representation of this media type.
 	 */
 	get formatted() {
@@ -103,6 +134,18 @@ export default class MediaType {
 					parameter1 === parameter2)
 	}
 }
+
+/**
+ * Enumerated types IANA registration trees.
+ * @type {object}
+ * @enum
+ */
+const RegistrationTree = Object.freeze({
+	standards: 'standards',
+	vendor: 'vendor',
+	personal: 'personal',
+	unregistered: 'unregistered'
+})
 
 const contentTypeRegex = /(?<type>(\w+)|\*)\/(?<subtype>([\w.]+)|\*)(\+(?<suffix>\w+))?/
 const parameterRegex = /\s*;\s*((?<parameter>\w+)\s*=\s*(?<value>\w+))/g
