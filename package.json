@@ -2,16 +2,24 @@
 	"name": "http-media-type",
 	"version": "1.0.0",
 	"description": "Utility library for processing media types of HTTP requests and responses.",
-	"keywords": [
-		"media-type",
-		"content-type",
-		"http"
-	],
 	"author": {
 		"name": "Serge Tsyba",
 		"email": "tsyba@me.com"
 	},
-	"license": "ISC",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sergetsyba/http-media-type.git"
+	},
+	"keywords": [
+		"media-type",
+		"content-type",
+		"mime-type",
+		"media",
+		"content",
+		"mime",
+		"http"
+	],
 	"type": "module",
 	"devDependencies": {
 		"assert": "^2.0.0",
