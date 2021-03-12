@@ -290,6 +290,33 @@ describe('MediaType', () => {
 		})
 	})
 
+	describe('parses media type parameters', () => {
+		it ('with a custom parser', () => {
+			let mediaType = 'application/vnd.company.content; version=1; date=2032-04-17'
+			mediaType = MediaType.parse(mediaType, (parameter, value) => {
+				switch (parameter) {
+					case 'version':
+						return Number.parseInt(value)
+					case 'date':
+						return Date.parse(value)
+					default:
+						return null;
+				}
+			})
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: null,
+				parameters: {
+					version: 1,
+					date: Date.parse('2032-04-17')
+				}
+			})
+		})
+	})
+
 	describe('formats media type', () => {
 		it('with all properties', () => {
 			const mediaType = new MediaType({

@@ -59,15 +59,30 @@ export default class MediaType {
 	/**
 	 * Returns a new instance of MediaType parsed from the specified textual
 	 * representation of a media type.
+	 *
 	 * This implementation is less restrictive than media type specification
 	 * in RFC 6838 section 4.2. It allows any characters other than white
 	 * space and / to be used in type, subtype and suffix, as well as does
 	 * not impose any length limits on those values.
 	 *
+	 * When an optional callback for processing media type parameters is specified,
+	 * the output of this function is stored as a value of corresponding parameters.
+	 * When this function does not return a value the corresponding parameter is
+	 * ignored. This callback can be used to e.g. convert media type parameters
+	 * from text to JavaScript types, apply formatting, ignore unwanted parameters,
+	 * etc.
+	 *
 	 * @param {string} text - Textual representation of a media type.
+	 * @param {function(string, string): *=} processParameter - An optional callback
+	 * 	for processing media type parameter values. It is called for each parameter
+	 * 	of the parsed media type with parameter name and value as arguments; it is
+	 * 	expected to return the processed parameter value. When no value is returned,
+	 *	the processed parameter is ignored. When this callback is not specified,
+	 *	all parameter values are stored as strings.
+	 *
 	 * @returns {MediaType} Parsed instance of a MediaType.
 	 */
-	static parse(text) {
+	static parse(text, processParameter = (parameter, value) => value) {
 		const parametersIndex = findIndex(text, ';')
 
 		// ensure base text does not include white space
@@ -96,7 +111,8 @@ export default class MediaType {
 				.trim()
 
 			parameterIndex = findIndex(text, ';', valueIndex)
-			parameters[parameter] = text.substring(valueIndex + 1, parameterIndex)
+			const value = text.substring(valueIndex + 1, parameterIndex)
+			parameters[parameter] = processParameter(parameter, value)
 		}
 
 		return new MediaType({
