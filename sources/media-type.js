@@ -112,7 +112,13 @@ export default class MediaType {
 
 			parameterIndex = findIndex(text, ';', valueIndex)
 			const value = text.substring(valueIndex + 1, parameterIndex)
-			parameters[parameter] = processParameter(parameter, value)
+
+			// apply an optional callback to process the parameter value
+			const processedValue = processParameter(parameter, value)
+			// keep parameter only when the callback returns a value
+			if (processedValue != null) {
+				parameters[parameter] = processedValue
+			}
 		}
 
 		return new MediaType({
