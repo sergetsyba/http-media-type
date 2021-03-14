@@ -1,0 +1,10 @@
+1.0.0
+	- Instantiating media types from separate and combined arguments
+	- Parsing media types for strings
+	- Formatting media types to strings
+	- Comparing media types for equality
+
+1.1.0
+	- Custom parameter processing during media type parsing
+	- Guide on common use cases
+	- Version history
