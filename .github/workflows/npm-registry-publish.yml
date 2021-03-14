@@ -26,4 +26,4 @@ jobs:
             - name: Publish
               run: npm publish
               env:
-                  auth_token: ${{secrets.npm_registry_access_token}}
+                  auth_token: ${{secrets.NPM_REGISTRY_ACCESS_TOKEN}}
