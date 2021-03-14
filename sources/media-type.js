@@ -81,6 +81,8 @@ export default class MediaType {
 	 *	all parameter values are stored as strings.
 	 *
 	 * @returns {MediaType} Parsed instance of a MediaType.
+	 * @throws {ParseError} When the specified textual representation of a media
+	 * 	type is malformed.
 	 */
 	static parse(text, processParameter = (parameter, value) => value) {
 		const parametersIndex = findIndex(text, ';')
