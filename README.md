@@ -20,7 +20,7 @@ const mediaType = new MediaType()
 // */*
 
 const mediaType = new MediaType('text', 'plain', {
-	charset: 'utf-8'
+    charset: 'utf-8'
 })
 // text/plain; charset=utf-8
 ```
@@ -28,18 +28,18 @@ const mediaType = new MediaType('text', 'plain', {
 ... or with a single combined argument.
 ```javascript
 const mediaType = new MediaType({
-	type: 'text',
-	subtype: 'plain'
+    type: 'text',
+    subtype: 'plain'
 })
 // text/plain
 
 const mediaType = new MediaType({
-	type: 'application',
-	subtype: 'vnd.company.media',
-	suffix: 'format',
-	parameters: {
-		version: 1
-	}
+    type: 'application',
+    subtype: 'vnd.company.media',
+    suffix: 'format',
+    parameters: {
+        version: 1
+    }
 })
 // application/vnd.company.media+format; version=1
 ```
@@ -53,11 +53,11 @@ const mediaType = MediaType.parse('application/vnd.company.media+format; version
 ... as well as with additional parameter processing
 ```javascript
 const mediaType = MediaType.parse('application/vnd.company.media+format; version=1',
-	(parameter, value) => {
-		if (parameter === 'version') {
-			return Number.parseInt(value)
-		}
-	})
+    (parameter, value) => {
+        if (parameter === 'version') {
+            return Number.parseInt(value)
+        }
+    })
 ```
 
 When the optional parameter processing callback is not specified, all
@@ -71,8 +71,8 @@ The `formatted` property holds the textual representation of the media
 type instance
 ```javascript
 const mediaType = ('application', 'vnd.company.media', {
-	version: 2,
-	embedded: 'other-media'
+    version: 2,
+    embedded: 'other-media'
 })
 
 console.log(mediaType.formatted)
