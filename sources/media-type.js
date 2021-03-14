@@ -188,7 +188,7 @@ export default class MediaType {
 	 * @returns {boolean} Returns true when this media type is equal to the
 	 *		specified one; returns false otherwise.
 	 */
-	isEqual(mediaType) {
+	equals(mediaType) {
 		return this.type === mediaType.type
 			&& this.subtype === mediaType.subtype
 			&& this.suffix === mediaType.suffix
