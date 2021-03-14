@@ -1,0 +1,29 @@
+name: Publish to NPM registry
+
+on:
+    push:
+        tags:
+            - '*'
+
+    workflow_dispatch:
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: '14'
+                  registry-url: https://registry.npmjs.org
+
+            - name: Run tests
+              run: |
+                  npm test
+                  npm install
+
+            - name: Publish
+              run: npm publish
+              env:
+                  auth_token: ${{secrets.npm_registry_access_token}}
