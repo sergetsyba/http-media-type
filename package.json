@@ -1,6 +1,6 @@
 {
 	"name": "http-media-type",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Utility library for processing media types of HTTP requests and responses.",
 	"author": {
 		"name": "Serge Tsyba",
