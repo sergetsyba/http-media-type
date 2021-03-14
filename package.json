@@ -21,6 +21,9 @@
 		"http"
 	],
 	"type": "module",
+	"files": [
+		"sources"
+	],
 	"devDependencies": {
 		"assert": "^2.0.0",
 		"jsdoc": "^3.6.6",
