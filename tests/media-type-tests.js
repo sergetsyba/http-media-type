@@ -434,6 +434,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2))
+			assert(mediaType2.equals(mediaType1))
 		})
 
 		it('verifies equality with same media type without parameters', () => {
@@ -450,6 +451,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2))
+			assert(mediaType2.equals(mediaType1))
 		})
 
 		it('does not verify equality with a different type', () => {
@@ -474,6 +476,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 
 		it('does not verify equality with a different subtype', () => {
@@ -498,6 +501,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 
 		it('does not verify equality with a different suffix', () => {
@@ -522,6 +526,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 
 		it('does not verify equality with different parameter count', () => {
@@ -547,6 +552,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 
 		it('does not verify equality with different parameters', () => {
@@ -571,6 +577,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 
 		it('does not verify equality with different parameter values', () => {
@@ -595,6 +602,7 @@ describe('MediaType', () => {
 			})
 
 			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
 		})
 	})
 })
