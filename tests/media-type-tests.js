@@ -732,4 +732,54 @@ describe('MediaType', () => {
 			assert(mediaType1.equals(mediaType2, compareParameters))
 		})
 	})
+
+	describe('checks media type match', () => {
+		it('verifies match with wildcard type', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content+format; version=2')
+			const mediaType2 = MediaType.parse('*/*')
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType2.matches(mediaType1))
+		})
+
+		it('verifies match with wildcard subtype', () => {
+			const mediaType1 = MediaType.parse('application/*')
+			const mediaType2 = MediaType.parse('application/json')
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType2.matches(mediaType1))
+		})
+
+		it('does not verify match wildcard subtype and parameters', () => {
+			const mediaType1 = MediaType.parse('application/*; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType2.matches(mediaType1) === false)
+		})
+
+		it('verifies match with wildcard subtype and different parameter values', () => {
+			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType2.matches(mediaType1))
+		})
+
+		it('does not verify match wildcard subtype and different parameters', () => {
+			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/json; charset=utf-8; encoding=zip')
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType2.matches(mediaType1) === false)
+		})
+
+		it('verifies match with same media type', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content+format; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8')
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType2.matches(mediaType1))
+		})
+	})
 })

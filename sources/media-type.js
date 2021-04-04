@@ -195,7 +195,6 @@ export default class MediaType {
 	 * parameter values comparison, or ignore certain parameters when checking for media
 	 * types equality.
 	 *
-	 *
 	 * @param {MediaType} mediaType - A media type, with which this media is being
 	 * 	compared for equality.
 	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
@@ -223,6 +222,33 @@ export default class MediaType {
 			&& this.subtype === mediaType.subtype
 			&& this.suffix === mediaType.suffix
 			&& isObjectsMatch(this.parameters, mediaType.parameters, compareParameters)
+	}
+
+	/**
+	 * Checks whether this media type is compatible with the specified one.
+	 *
+	 * @param {MediaType} mediaType - Media type with which this media type is being
+	 *	compared for compatibility.
+	 * @returns {boolean} Returns true when this media type is compatible with the
+	 *	specified one; returns false otherwise.
+	 */
+	matches(mediaType) {
+		if (this.type === '*' || mediaType.type === '*') {
+			// wildcard media type matches any media type
+			return true
+		}
+		else if (this.subtype === '*' || mediaType.subtype === '*') {
+			// media type with wildcard subtype matches any media with same
+			// type and parameters
+			// note: media type suffix is not allowed with wildcard subtype
+			return this.type === mediaType.type
+				&& isObjectsMatch(this.parameters, mediaType.parameters,
+					(parameter, value1, value2) =>
+						value1 === value2)
+		}
+		else {
+			return this.equals(mediaType)
+		}
 	}
 }
 
