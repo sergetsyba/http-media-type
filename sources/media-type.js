@@ -227,6 +227,15 @@ export default class MediaType {
 	/**
 	 * Checks whether this media type is compatible with the specified one.
 	 *
+	 * Unlike the equals method, this method accounts for wildcards (*) in media
+	 * type properties. It is, thus, better suited for HTTP content negotiation.
+	 *
+	 * Match criteria are:
+	 * 	- wildcard media type (*\/*) matches any media type;
+	 * 	- media type with wildcard subtype (type\/*) matches media type with any
+	 * 		subtype, as long as their type and parameters are equal;
+	 * 	- media types without wildcards match as long as they are equal;
+	 *
 	 * @param {MediaType} mediaType - Media type with which this media type is being
 	 *	compared for compatibility.
 	 * @returns {boolean} Returns true when this media type is compatible with the
