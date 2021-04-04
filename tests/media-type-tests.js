@@ -605,4 +605,131 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 	})
+
+	describe('checks media type equality with parameter processing', () => {
+		it('verifies equality with equal processed values', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
+
+			const compareParameters = (parameter, value1, value2) => {
+				return value1.toLowerCase() === value2.toLowerCase()
+			}
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType1.equals(mediaType2, compareParameters))
+			assert(mediaType2.equals(mediaType1, compareParameters))
+		})
+
+		it('does not verify equality with unequal processed values', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=ASCII')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+
+			const compareParameters = (parameter, value1, value2) => {
+				return value1.toUpperCase() === value2.toUpperCase()
+			}
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType1.equals(mediaType2, compareParameters) === false)
+			assert(mediaType2.equals(mediaType1, compareParameters) === false)
+		})
+
+		it('does not verify equality with equal values but unequal processed values', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+
+			const compareParameters = (parameter, value1, value2) => {
+				return value1.toUpperCase() === value2
+			}
+
+			assert(mediaType1.equals(mediaType2))
+			assert(mediaType1.equals(mediaType2, compareParameters) === false)
+			assert(mediaType2.equals(mediaType1, compareParameters) === false)
+		})
+
+		it('does not verify equality with different parameters', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; include=other-content; compression=zip')
+
+			const compareParameters = (parameter, value1, value2) => {
+				return value1 === value2
+			}
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType1.equals(mediaType2, compareParameters) === false)
+			assert(mediaType2.equals(mediaType1, compareParameters) === false)
+		})
+
+		it('verifies equality with equal implicitly compared parameters', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+
+			const compareParameters = (parameter, value1, value2) => {
+				if (parameter === 'version') {
+					return value1 === value2
+				}
+				// charset parameter values are implicitly compared with (===)
+			}
+
+			assert(mediaType1.equals(mediaType2))
+			assert(mediaType1.equals(mediaType2, compareParameters))
+			assert(mediaType2.equals(mediaType1, compareParameters))
+		})
+
+		it('does not verify equality with unequal implicitly compared parameters', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
+
+			const compareParameters = (parameter, value1, value2) => {
+				if (parameter === 'version') {
+					return value1 === value2
+				}
+				// charset parameter values are implicitly compared with (===)
+			}
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType1.equals(mediaType2, compareParameters) === false)
+			assert(mediaType2.equals(mediaType1, compareParameters) === false)
+		})
+
+		it('verifies equality without parameters', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content')
+			const mediaType2 = MediaType.parse('application/vnd.company.content')
+
+			const compareParameters = (parameter, value1, value2) => {
+				return value1.toUpperCase() === value2.toUpperCase()
+			}
+
+			assert(mediaType1.equals(mediaType2))
+			assert(mediaType1.equals(mediaType2, compareParameters))
+			assert(mediaType2.equals(mediaType1, compareParameters))
+		})
+
+		it('uses undefined as comparator argument when parameter is absent', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; include=other-content; compression=zip')
+
+			const compareParameters = (parameter, value1, value2) => {
+				switch (parameter) {
+					// appears in both media types
+					case 'charset':
+						return value1 === value2
+					// appears in mediaType1
+					case 'version':
+						return value1 !== undefined
+							&& value2 === undefined
+					// appear in mediaTyp22
+					case 'include':
+					case 'compression':
+						return value1 === undefined
+							&& value2 !== undefined
+					// unknown parameter
+					default:
+						assert.fail()
+				}
+			}
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType1.equals(mediaType2, compareParameters))
+		})
+	})
 })

@@ -74,11 +74,14 @@ export default class MediaType {
 	 *
 	 * @param {string} text - Textual representation of a media type.
 	 * @param {function(string, string): *=} processParameter - An optional callback
-	 * 	for processing media type parameter values. It is called for each parameter
-	 * 	of the parsed media type with parameter name and value as arguments; it is
-	 * 	expected to return the processed parameter value. When no value is returned,
-	 *	the processed parameter is ignored. When this callback is not specified,
-	 *	all parameter values are stored as strings.
+	 * 	for additional processing media type parameter values. It is called for each
+	 * 	parameter of the parsed media type with parameter name and value as its
+	 * 	arguments.
+	 * 	The callback should return the processed parameter value. When no value is
+	 * 	returned, the processed parameter is ignored and will not be present in the
+	 * 	parsed media type.
+	 * 	When this callback is not specified, all parameter values are stored as
+	 * 	strings.
 	 *
 	 * @returns {MediaType} Parsed instance of a MediaType.
 	 * @throws {ParseError} When the specified textual representation of a media
@@ -186,17 +189,40 @@ export default class MediaType {
 	/**
 	 * Checks whether this media type is equal to the specified one.
 	 *
-	 * @param {MediaType} mediaType
+	 * All media type parameter values are compared with strict equality operator (===).
+	 * When an optional callback is specified, its output is used to determine parameter
+	 * value equality. This callback can be used to e.g. do additional processing in
+	 * parameter values comparison, or ignore certain parameters when checking for media
+	 * types equality.
+	 *
+	 *
+	 * @param {MediaType} mediaType - A media type, with which this media is being
+	 * 	compared for equality.
+	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
+	 * 	for custom comparison of parameter values of the compared media types.
+	 * 	This callback is called for every parameter with parameter name as the first
+	 * 	argument and parameter values of this and compared media types as the second and
+	 * 	the third argument respectively. When a parameter appears only in one of the
+	 * 	compared media types, this callback is called with undefined as the second or the
+	 * 	third argument, depending on which media type the parameter is absent from.
+	 * 	The callback should return a boolean indicating whether the values of a parameter
+	 * 	are equal. When no value is returned, the values are compared with strict equality
+	 * 	operator (===).
+	 * 	When no callback is specified, all values of common parameters are compared with
+	 * 	strict equality operator (===).
 	 * @returns {boolean} Returns true when this media type is equal to the
 	 *		specified one; returns false otherwise.
 	 */
-	equals(mediaType) {
+	equals(mediaType, compareParameters) {
+		if (compareParameters == null) {
+			compareParameters = (parameter, value1, value2) =>
+				value1 === value2
+		}
+
 		return this.type === mediaType.type
 			&& this.subtype === mediaType.subtype
 			&& this.suffix === mediaType.suffix
-			&& isObjectsMatch(this.parameters, mediaType.parameters,
-				(parameter1, parameter2) =>
-					parameter1 === parameter2)
+			&& isObjectsMatch(this.parameters, mediaType.parameters, compareParameters)
 	}
 }
 
@@ -217,14 +243,28 @@ const RegistrationTree = Object.freeze({
 })
 
 function isObjectsMatch(object1, object2, isValuesMatch) {
-	const keys1 = Object.keys(object1)
-	const keys2 = Object.keys(object2)
-	if (keys1.length !== keys2.length) {
-		return false
+	// collect all distinct parameters
+	const keys = new Set([
+		...Object.keys(object1),
+		...Object.keys(object2)
+	])
+
+	for (const key of keys) {
+		let valuesMatch = isValuesMatch(key, object1[key], object2[key])
+
+		// needs explicit check for null, since simplifying with || operator
+		// would return incorrect result when raw values are equal, but set
+		// unequal explicitly in the value comparator
+		if (valuesMatch == null) {
+			valuesMatch = object1[key] === object2[key]
+		}
+
+		if (valuesMatch === false) {
+			return false
+		}
 	}
 
-	return keys1.every((key) =>
-		isValuesMatch(object1[key], object2[key]))
+	return true
 }
 
 function findIndex(text, character, start = 0, end = text.length) {
