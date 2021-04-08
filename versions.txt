@@ -8,3 +8,7 @@
 	- Custom parameter processing during media type parsing
 	- Guide on common use cases
 	- Version history
+
+1.2.0
+	- Matching media types with wildcards
+	- Custom parameter value comparison in media type comparison for equality and match
