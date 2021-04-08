@@ -178,9 +178,10 @@ export default class MediaType {
 		if (this.suffix != null) {
 			formatted += '+' + this.suffix
 		}
-		for (const parameter in this.parameters) {
-			formatted += '; ' + parameter
-				+ '=' + this.parameters[parameter]
+
+		const entries = Object.entries(this.parameters)
+		for (const [parameter, value] of entries) {
+			formatted += `; ${parameter}=${value}`
 		}
 
 		return formatted
