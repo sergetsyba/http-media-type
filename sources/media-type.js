@@ -228,7 +228,7 @@ export default class MediaType {
 	 * Checks whether this media type is compatible with the specified one.
 	 *
 	 * Unlike the equals method, this method accounts for wildcards (*) in media
-	 * type properties. It is, thus, better suited for HTTP content negotiation.
+	 * type properties. Therefore, it is better suited for HTTP content negotiation.
 	 *
 	 * Match criteria are:
 	 * 	- wildcard media type (*\/*) matches any media type;
@@ -238,7 +238,18 @@ export default class MediaType {
 	 *
 	 * @param {MediaType} mediaType - Media type with which this media type is being
 	 *	compared for compatibility.
-	 * @param {function(string, *, *): boolean=} matchParameters
+	 * @param {function(string, *, *): boolean=} matchParameters - An optional callback
+	 * 	for custom comparison of parameter values of the compared media types.
+	 * 	This callback is called for every parameter with parameter name as the first
+	 * 	argument and parameter values of this and compared media types as the second and
+	 * 	the third argument respectively. When a parameter appears only in one of the
+	 * 	compared media types, this callback is called with undefined as the second or the
+	 * 	third argument, depending on which media type the parameter is absent from.
+	 * 	The callback should return a boolean indicating whether the values of a parameter
+	 * 	are equal. When no value is returned, the values are compared with strict equality
+	 * 	operator (===).
+	 * 	When no callback is specified, all values of common parameters are compared with
+	 * 	strict equality operator (===).
 	 * @returns {boolean} Returns true when this media type is compatible with the
 	 *	specified one; returns false otherwise.
 	 */
