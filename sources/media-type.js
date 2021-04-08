@@ -199,14 +199,14 @@ export default class MediaType {
 	 * 	compared for equality.
 	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
-	 * 	This callback is called for every parameter with parameter name as the first
-	 * 	argument and parameter values of this and compared media types as the second and
-	 * 	the third argument respectively. When a parameter appears only in one of the
-	 * 	compared media types, this callback is called with undefined as the second or the
-	 * 	third argument, depending on which media type the parameter is absent from.
+	 * 	This callback receives parameter name as its first argument, and parameter values
+	 * 	of this and compared media types as the second and the third argument
+	 * 	respectively. When a parameter appears only in one of the compared media types,
+	 * 	this callback receives undefined as the argument for parameter value of the media
+	 * 	type where parameter is absent.
 	 * 	The callback should return a boolean indicating whether the values of a parameter
-	 * 	are equal. When no value is returned, the values are compared with strict equality
-	 * 	operator (===).
+	 * 	are equal. When no value is returned, the values are compared with strict
+	 * 	equality operator (===).
 	 * 	When no callback is specified, all values of common parameters are compared with
 	 * 	strict equality operator (===).
 	 * @returns {boolean} Returns true when this media type is equal to the
@@ -225,29 +225,31 @@ export default class MediaType {
 	}
 
 	/**
-	 * Checks whether this media type is compatible with the specified one.
+	 * Checks whether this media type is compatible with (i.e. matches) the specified
+	 * one.
 	 *
-	 * Unlike the equals method, this method accounts for wildcards (*) in media
-	 * type properties. Therefore, it is better suited for HTTP content negotiation.
+	 * This method is similar to equals() method, except it accounts for wildcards (*)
+	 * in media type properties. It is better suited for HTTP content negotiation.
 	 *
-	 * Match criteria are:
+	 * Media types are matched according to the following rules:
 	 * 	- wildcard media type (*\/*) matches any media type;
-	 * 	- media type with wildcard subtype (type\/*) matches media type with any
-	 * 		subtype, as long as their type and parameters are equal;
-	 * 	- media types without wildcards match as long as they are equal;
+	 * 	- media type with wildcard subtype (type\/*) matches media iff their type and
+	 * 		parameters are equal;
+	 * 	- media type without wildcards matches any media type without wildcards iff
+	 * 		they are equal;
 	 *
 	 * @param {MediaType} mediaType - Media type with which this media type is being
 	 *	compared for compatibility.
 	 * @param {function(string, *, *): boolean=} matchParameters - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
-	 * 	This callback is called for every parameter with parameter name as the first
-	 * 	argument and parameter values of this and compared media types as the second and
-	 * 	the third argument respectively. When a parameter appears only in one of the
-	 * 	compared media types, this callback is called with undefined as the second or the
-	 * 	third argument, depending on which media type the parameter is absent from.
+	 * 	This callback receives parameter name as its first argument, and parameter values
+	 * 	of this and compared media types as the second and the third argument
+	 * 	respectively. When a parameter appears only in one of the compared media types,
+	 * 	this callback receives undefined as the argument for parameter value of the media
+	 * 	type where parameter is absent.
 	 * 	The callback should return a boolean indicating whether the values of a parameter
-	 * 	are equal. When no value is returned, the values are compared with strict equality
-	 * 	operator (===).
+	 * 	are equal. When no value is returned, the values are compared with strict
+	 * 	equality operator (===).
 	 * 	When no callback is specified, all values of common parameters are compared with
 	 * 	strict equality operator (===).
 	 * @returns {boolean} Returns true when this media type is compatible with the
