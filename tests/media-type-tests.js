@@ -782,4 +782,97 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1))
 		})
 	})
+
+	describe('checks media type match with parameter processing', () => {
+		it('verifies match with wildcard subtype and equal processed values', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=UTF-8; version=1')
+
+			const matchParameters = (parameter, value1, value2) =>
+				value1.toLowerCase() === value2.toLowerCase()
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType1.matches(mediaType2, matchParameters))
+			assert(mediaType2.matches(mediaType1, matchParameters))
+		})
+
+		it('does not verify match with wildcard subtype and unequal processed values', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1; charset=ASCII')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=UTF-8; version=1')
+
+			const matchParameters = (parameter, value1, value2) =>
+				value1.toLowerCase() === value2.toLowerCase()
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType1.matches(mediaType2, matchParameters) === false)
+			assert(mediaType2.matches(mediaType1, matchParameters) === false)
+		})
+
+		it('does not verify match with wildcard subtype and equal values and unequal processed values', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1; charset=utf-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=1')
+
+			const matchParameters = (parameter, value1, value2) =>
+				value1 === value2.toUpperCase()
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType1.matches(mediaType2, matchParameters) === false)
+			assert(mediaType2.matches(mediaType1, matchParameters) === false)
+		})
+
+		it('verifies match with wildcard subtype and equal implicitly processed values', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=1')
+
+			const matchParameters = (parameter, value1, value2) => {
+				if (parameter === 'charset') {
+					return value1.toUpperCase() === value2.toUpperCase()
+				}
+				// version parameter values are implicitly compared with (===)
+			}
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType1.matches(mediaType2, matchParameters))
+			assert(mediaType2.matches(mediaType1, matchParameters))
+		})
+
+		it('does not verify match with wildcard subtype and unequal implicitly processed values', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=2')
+
+			const matchParameters = (parameter, value1, value2) => {
+				if (parameter === 'charset') {
+					return value1 === value2
+				}
+				// version parameter values are implicitly compared with (===)
+			}
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType1.matches(mediaType2, matchParameters) === false)
+			assert(mediaType2.matches(mediaType1, matchParameters) === false)
+		})
+
+		it('verifies match without parameters', () => {
+			const mediaType1 = MediaType.parse('application/*')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format')
+
+			const matchParameters = (parameter, value1, value2) =>
+				value1 === value2
+
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType1.matches(mediaType2, matchParameters))
+			assert(mediaType2.matches(mediaType1, matchParameters))
+		})
+
+		it('uses undefined as comparator argument when parameter is absent', () => {
+			const mediaType1 = MediaType.parse('application/*; version=1')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format')
+
+			const matchParameters = (parameter, value1, value2) => {
+				assert.equal(value2, undefined)
+			}
+
+			assert(mediaType1.matches(mediaType2, matchParameters) === false)
+		})
+	})
 })
