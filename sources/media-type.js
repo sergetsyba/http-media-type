@@ -60,34 +60,36 @@ export default class MediaType {
 	 * Returns a new instance of MediaType parsed from the specified textual
 	 * representation of a media type.
 	 *
-	 * This implementation is less restrictive than media type specification
-	 * in RFC 6838 section 4.2. It allows any characters other than white
-	 * space and / to be used in type, subtype and suffix, as well as does
-	 * not impose any length limits on those values.
+	 * This implementation is less restrictive than media type specification in
+	 * RFC 6838 section 4.2. It allows any characters other than white space and / to be
+	 * used in type, subtype and suffix, as well as does not impose any length limits on
+	 * those values.
 	 *
-	 * When an optional callback for processing media type parameters is specified,
-	 * the output of this function is stored as a value of corresponding parameters.
-	 * When this function does not return a value the corresponding parameter is
-	 * ignored. This callback can be used to e.g. convert media type parameters
-	 * from text to JavaScript types, apply formatting, ignore unwanted parameters,
-	 * etc.
+	 * When an optional callback for processing media type parameters is specified, its
+	 * output is stored as a value of corresponding parameters. When this callback does
+	 * not return a value the corresponding parameter is ignored. This callback can be
+	 * used to e.g. convert media type parameters from text to JavaScript types, apply
+	 * formatting, ignore unwanted parameters, etc.
 	 *
 	 * @param {string} text - Textual representation of a media type.
-	 * @param {function(string, string): *=} processParameter - An optional callback
-	 * 	for additional processing media type parameter values. It is called for each
+	 * @param {function(string, string): *=} processParameter - An optional callback for
+	 * 	additional processing media type parameter values. It is called for each
 	 * 	parameter of the parsed media type with parameter name and value as its
 	 * 	arguments.
 	 * 	The callback should return the processed parameter value. When no value is
 	 * 	returned, the processed parameter is ignored and will not be present in the
 	 * 	parsed media type.
-	 * 	When this callback is not specified, all parameter values are stored as
-	 * 	strings.
+	 * 	When this callback is not specified, all parameter values are stored as strings.
 	 *
 	 * @returns {MediaType} Parsed instance of a MediaType.
-	 * @throws {ParseError} When the specified textual representation of a media
-	 * 	type is malformed.
+	 * @throws {ParseError} When the specified textual representation of a media type is
+	 * malformed.
 	 */
-	static parse(text, processParameter = (parameter, value) => value) {
+	static parse(text, processParameter) {
+		if (processParameter == null) {
+			processParameter = (parameter, value) => value
+		}
+
 		const parametersIndex = findIndex(text, ';')
 
 		// ensure base text does not include white space
@@ -143,10 +145,10 @@ export default class MediaType {
 	}
 
 	/**
-	 * IANA registration tree type of this media type. When this media type
-	 * has an unknown registration tree prefix, this property contains the prefix.
-	 * Note: whenever subtype this media type contains dots, character sequence
-	 * until the first dot is considered a registration tree prefix.
+	 * IANA registration tree type of this media type.
+	 *
+	 * When this media type has an unknown registration tree prefix, this property
+	 * contains the prefix.
 	 *
 	 * @type {(RegistrationTree|string)}
 	 */
@@ -191,7 +193,7 @@ export default class MediaType {
 	 * Checks whether this media type is equal to the specified one.
 	 *
 	 * All media type parameter values are compared with strict equality operator (===).
-	 * When an optional callback is specified, its output is used to determine parameter
+	 * When an optional callback is specified, it is used instead to determine parameter
 	 * value equality. This callback can be used to e.g. do additional processing in
 	 * parameter values comparison, or ignore certain parameters when checking for media
 	 * types equality.
@@ -267,8 +269,8 @@ export default class MediaType {
 			return true
 		}
 		else if (this.subtype === '*' || mediaType.subtype === '*') {
-			// media type with wildcard subtype matches any media with same
-			// type and parameters
+			// media type with wildcard subtype matches any media with same type and
+			// parameters
 			// note: media type suffix is not allowed with wildcard subtype
 			return this.type === mediaType.type
 				&& isObjectsMatch(this.parameters, mediaType.parameters, matchParameters)
@@ -305,9 +307,9 @@ function isObjectsMatch(object1, object2, isValuesMatch) {
 	for (const key of keys) {
 		let valuesMatch = isValuesMatch(key, object1[key], object2[key])
 
-		// needs explicit check for null, since simplifying with || operator
-		// would return incorrect result when raw values are equal, but set
-		// unequal explicitly in the value comparator
+		// needs explicit check for null, since simplifying with || operator would return
+		// incorrect result when raw values are equal, but set unequal explicitly in the
+		// value comparator
 		if (valuesMatch == null) {
 			valuesMatch = object1[key] === object2[key]
 		}
