@@ -131,6 +131,81 @@ describe('MediaType', () => {
 		})
 	})
 
+	describe('parameters', () => {
+		it('verifies property in ignoring case', () => {
+			const mediaType = new MediaType('application', 'json', {
+				CharSet: 'utf-8',
+				variant: 'HAL'
+			})
+
+			assert('charset' in mediaType.parameters)
+			assert(!('Nope' in mediaType.parameters))
+			assert('VARIANT' in mediaType.parameters)
+		})
+
+		it('gets property ignoring case', () => {
+			const mediaType = new MediaType('application', 'json', {
+				CharSet: 'utf-8',
+				variant: 'HAL'
+			})
+
+			assert.equal(mediaType.parameters.charset, 'utf-8')
+			assert.equal(mediaType.parameters['Nope'], undefined)
+			assert.equal(mediaType.parameters['VARIANT'], 'HAL')
+		})
+
+		it('deletes property ignoring case', () => {
+			const mediaType = new MediaType('application', 'json', {
+				CharSet: 'utf-8',
+				variant: 'HAL'
+			})
+
+			delete mediaType.parameters.charset
+			assert.deepEqual(mediaType.parameters, {
+				variant: 'HAL'
+			})
+
+			delete mediaType.parameters['Nope']
+			assert.deepEqual(mediaType.parameters, {
+				variant: 'HAL'
+			})
+
+			delete mediaType.parameters['VARIANT']
+			assert.deepEqual(mediaType.parameters, {
+			})
+		})
+
+		it('gets properties preserving case', () => {
+			const mediaType = new MediaType('application', 'json', {
+				CharSet: 'utf-8',
+				variant: 'HAL'
+			})
+
+			const keys = Object.keys(mediaType.parameters)
+			assert.deepEqual(keys, [
+				'CharSet', 'variant'
+			])
+		})
+
+		it('iterates properties preserving case', () => {
+			const mediaType = new MediaType('application', 'json', {
+				CharSet: 'utf-8',
+				variant: 'HAL'
+			})
+
+			const keys = []
+			for (const key in mediaType.parameters) {
+				if (mediaType.parameters.hasOwnProperty(key)) {
+					keys.push(key)
+				}
+			}
+
+			assert.deepEqual(keys, [
+				'CharSet', 'variant'
+			])
+		})
+	})
+
 	describe('gets registration tree type', () => {
 		it('with standards tree', () => {
 			const mediaType = new MediaType('application','json')
@@ -412,7 +487,7 @@ describe('MediaType', () => {
 	})
 
 	describe('checks media type equality', () => {
-		it('verifies equality with same media type', () => {
+		it('verifies with same media type', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -437,7 +512,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1))
 		})
 
-		it('verifies equality with same media type without parameters', () => {
+		it('verifies with same media type without parameters', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -454,7 +529,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1))
 		})
 
-		it('does not verify equality with a different type', () => {
+		it('does not verify with a different type', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -479,7 +554,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify equality with a different subtype', () => {
+		it('does not verify with a different subtype', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -504,7 +579,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify equality with a different suffix', () => {
+		it('does not verify with a different suffix', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -529,7 +604,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify equality with different parameter count', () => {
+		it('does not verify with different parameter count', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -555,7 +630,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify equality with different parameters', () => {
+		it('does not verify with different parameters', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
@@ -580,7 +655,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify equality with different parameter values', () => {
+		it('does not verify with different parameter values', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',

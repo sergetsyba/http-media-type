@@ -1,4 +1,5 @@
 import ParseError from './parse-error.js'
+import {createCaseIgnoringProxy} from './case-ignoring-proxy.js'
 
 export default class MediaType {
 	/**
@@ -22,38 +23,39 @@ export default class MediaType {
 	 *		When not specified, creates a media type with a wildcard subtype (type//*).
 	 * @param {object=} [parameters] - Parameters of this media type.
 	 */
-	constructor(type, subtype, parameters) {
+	constructor(type, subtype, parameters = {}) {
+		let suffix = null
 		if (arguments.length === 1
 			&& typeof arguments[0] === 'object') {
-			const {type, subtype, suffix, parameters} = arguments[0]
+			({
+				type = 'application',
+				subtype,
+				suffix,
+				parameters = {}
+			} = arguments[0])
+		}
 
-			/**
-			 * Type of this media type.
-			 * @type {string}
-			 */
-			this.type = type || 'application'
-			/**
-			 * Subtype of this media type.
-			 * @type {string}
-			 */
-			this.subtype = subtype || '*'
-			/**
-			 * Suffix of this media type.
-			 * @type {string}
-			 */
-			this.suffix = suffix || null
-			/**
-			 * Parameters of this media type.
-			 * @type {object}
-			 */
-			this.parameters = parameters || {}
-		}
-		else {
-			this.type = type || '*'
-			this.subtype = subtype || '*'
-			this.suffix = null
-			this.parameters = parameters || {}
-		}
+		/**
+		 * Type of this media type.
+		 * @type {string}
+		 */
+		this.type = type || '*'
+		/**
+		 * Subtype of this media type.
+		 * @type {string}
+		 */
+		this.subtype = subtype || '*'
+		/**
+		 * Suffix of this media type.
+		 * @type {string}
+		 */
+		this.suffix = suffix || null
+		/**
+		 * Parameters of this media type.
+		 * Parameter names are case-insensitive.
+		 * @type {object}
+		 */
+		this.parameters = createCaseIgnoringProxy(parameters)
 	}
 
 	/**
