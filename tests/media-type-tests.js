@@ -529,6 +529,27 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1))
 		})
 
+		it('verifies with same media type with parameters in different case', () => {
+			const mediaType1 = new MediaType({
+				subtype: 'vnd.company.content',
+				parameters: {
+					Version: '2',
+					charset: 'utf-8'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				subtype: 'vnd.company.content',
+				parameters: {
+					VERSION: '2',
+					CharSet: 'utf-8'
+				}
+			})
+
+			assert(mediaType1.equals(mediaType2))
+			assert(mediaType2.equals(mediaType1))
+		})
+
 		it('does not verify with a different type', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
@@ -682,7 +703,7 @@ describe('MediaType', () => {
 	})
 
 	describe('checks media type equality with parameter processing', () => {
-		it('verifies equality with equal processed values', () => {
+		it('verifies with equal processed values', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
 
@@ -695,7 +716,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters))
 		})
 
-		it('does not verify equality with unequal processed values', () => {
+		it('does not verify with unequal processed values', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=ASCII')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
 
@@ -708,7 +729,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters) === false)
 		})
 
-		it('does not verify equality with equal values but unequal processed values', () => {
+		it('does not verify with equal values but unequal processed values', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
 
@@ -721,7 +742,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters) === false)
 		})
 
-		it('does not verify equality with different parameters', () => {
+		it('does not verify with different parameters', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; include=other-content; compression=zip')
 
@@ -734,7 +755,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters) === false)
 		})
 
-		it('verifies equality with equal implicitly compared parameters', () => {
+		it('verifies with equal implicitly compared parameters', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; version=2; charset=utf-8')
 
@@ -750,7 +771,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters))
 		})
 
-		it('does not verify equality with unequal implicitly compared parameters', () => {
+		it('does not verify with unequal implicitly compared parameters', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content; version=2; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content; charset=utf-8; version=2')
 
@@ -766,7 +787,7 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1, compareParameters) === false)
 		})
 
-		it('verifies equality without parameters', () => {
+		it('verifies without parameters', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content')
 			const mediaType2 = MediaType.parse('application/vnd.company.content')
 
@@ -809,7 +830,7 @@ describe('MediaType', () => {
 	})
 
 	describe('checks media type match', () => {
-		it('verifies match with wildcard type', () => {
+		it('verifies with wildcard type', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content+format; version=2')
 			const mediaType2 = MediaType.parse('*/*')
 
@@ -817,7 +838,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1))
 		})
 
-		it('verifies match with wildcard subtype', () => {
+		it('verifies with wildcard subtype', () => {
 			const mediaType1 = MediaType.parse('application/*')
 			const mediaType2 = MediaType.parse('application/json')
 
@@ -825,7 +846,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1))
 		})
 
-		it('does not verify match wildcard subtype and parameters', () => {
+		it('does not verify with wildcard subtype and parameters', () => {
 			const mediaType1 = MediaType.parse('application/*; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
 
@@ -833,7 +854,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1) === false)
 		})
 
-		it('verifies match with wildcard subtype and different parameter values', () => {
+		it('verifies with wildcard subtype and different parameter values', () => {
 			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
 
@@ -841,7 +862,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1))
 		})
 
-		it('does not verify match wildcard subtype and different parameters', () => {
+		it('does not verify with wildcard subtype and different parameters', () => {
 			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8; encoding=zip')
 
@@ -849,7 +870,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1) === false)
 		})
 
-		it('verifies match with same media type', () => {
+		it('verifies with same media type', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content+format; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8')
 
@@ -859,7 +880,7 @@ describe('MediaType', () => {
 	})
 
 	describe('checks media type match with parameter processing', () => {
-		it('verifies match with wildcard subtype and equal processed values', () => {
+		it('verifies with wildcard subtype and equal processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=UTF-8; version=1')
 
@@ -871,7 +892,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters))
 		})
 
-		it('does not verify match with wildcard subtype and unequal processed values', () => {
+		it('does not verify with wildcard subtype and unequal processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=ASCII')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=UTF-8; version=1')
 
@@ -883,7 +904,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters) === false)
 		})
 
-		it('does not verify match with wildcard subtype and equal values and unequal processed values', () => {
+		it('does not verify with wildcard subtype and equal values and unequal processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=1')
 
@@ -895,7 +916,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters) === false)
 		})
 
-		it('verifies match with wildcard subtype and equal implicitly processed values', () => {
+		it('verifies with wildcard subtype and equal implicitly processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=1')
 
@@ -911,7 +932,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters))
 		})
 
-		it('does not verify match with wildcard subtype and unequal implicitly processed values', () => {
+		it('does not match with wildcard subtype and unequal implicitly processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=2')
 
@@ -927,7 +948,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters) === false)
 		})
 
-		it('verifies match without parameters', () => {
+		it('verifies without parameters', () => {
 			const mediaType1 = MediaType.parse('application/*')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format')
 
