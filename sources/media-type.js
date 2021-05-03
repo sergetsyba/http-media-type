@@ -1,4 +1,4 @@
-import {ParseError} from './errors.js'
+import {ParseError, RepeatedParameterError} from './errors.js'
 import {
 	ensureParametersUnique,
 	createParametersProxy,
@@ -131,6 +131,10 @@ export default class MediaType {
 			const processedValue = processParameter(parameter, value)
 			// keep parameter only when the callback returns a value
 			if (processedValue != null) {
+				// throw an error when parameter is repeated
+				if (parameter in parameters) {
+					throw new RepeatedParameterError(parameter)
+				}
 				parameters[parameter] = processedValue
 			}
 		}

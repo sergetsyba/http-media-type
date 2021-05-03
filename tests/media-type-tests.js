@@ -386,10 +386,24 @@ describe('MediaType', () => {
 				MediaType.parse(mediaType)
 			}, ParseError)
 		})
+
+		it('fails with repeated parameters', () => {
+			const mediaType = 'application/json; charset=utf-8; schema=HAL; charset=utf-8'
+			assert.throws(() => {
+				MediaType.parse(mediaType)
+			}, new RepeatedParameterError('charset'))
+		})
+
+		it('fails with repeated parameters in different case', () => {
+			const mediaType = 'application/json; charset=utf-8; schema=HAL; CharSet=utf-8'
+			assert.throws(() => {
+				MediaType.parse(mediaType)
+			}, new RepeatedParameterError('CharSet'))
+		})
 	})
 
 	describe('parses media type with parameter processing', () => {
-		it ('processes parameters', () => {
+		it('processes parameters', () => {
 			let mediaType = 'application/vnd.company.content; version=1; date=2032-04-17'
 			mediaType = MediaType.parse(mediaType, (parameter, value) => {
 				switch (parameter) {
@@ -414,8 +428,35 @@ describe('MediaType', () => {
 			})
 		})
 
-		it ('ignores parameters when parameter processing does not return a value', () => {
+		it('ignores parameters when parameter processing does not return a value', () => {
 			let mediaType = 'application/vnd.company.content; version=1; date=2032-04-17'
+			mediaType = MediaType.parse(mediaType, (parameter, value) => {
+				if (parameter === 'version') {
+					return Number.parseInt(value)
+				}
+			})
+
+			Object.setPrototypeOf(mediaType, Object.prototype)
+			assert.deepEqual(mediaType, {
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: null,
+				parameters: {
+					version: 1
+				}
+			})
+		})
+
+		it('fails with repeated parameters', () => {
+			const mediaType = 'application/json; charset=utf-8; schema=HAL; CharSet=utf-8'
+			assert.throws(() => {
+				MediaType.parse(mediaType, (parameter, value) =>
+					value.toLowerCase())
+			}, new RepeatedParameterError('CharSet'))
+		})
+
+		it('ignores repeated parameters when parameter processing does not return a value', () => {
+			let mediaType = 'application/vnd.company.content; date=today; version=1; date=2032-04-17'
 			mediaType = MediaType.parse(mediaType, (parameter, value) => {
 				if (parameter === 'version') {
 					return Number.parseInt(value)
