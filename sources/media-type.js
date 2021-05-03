@@ -1,9 +1,14 @@
-import {ParseError, RepeatedParameterError} from './errors.js'
+import {
+	RepeatedParameterError,
+	ParseError
+} from './errors.js'
+
 import {
 	ensureParametersUnique,
 	createParametersProxy,
 	parametersMatch
 } from './media-type-parameters.js'
+
 
 export default class MediaType {
 	/**
@@ -17,6 +22,9 @@ export default class MediaType {
 	 * @param {string} [properties.suffix=null] - Suffix of this media type.
 	 * 		When not specified, uses null.
 	 * @param {object=} [properties.properties] - Parameters of this media type.
+	 *
+	 * @throws {RepeatedParameterError} When any parameter is specified more than once
+	 * 	(in different letter cases).
 	 *//**
 	 * Creates a new instance of MediaType.
 	 *
@@ -26,6 +34,9 @@ export default class MediaType {
 	 * @param {string} [subtype=*] - Subtype of this media type.
 	 *		When not specified, creates a media type with a wildcard subtype (type//*).
 	 * @param {object=} [parameters] - Parameters of this media type.
+	 *
+	 * @throws {RepeatedParameterError} When any parameter is specified more than once
+	 * 	(in different letter cases).
 	 */
 	constructor(type, subtype, parameters = {}) {
 		let suffix = null
@@ -44,19 +55,27 @@ export default class MediaType {
 		 * @type {string}
 		 */
 		this.type = type || '*'
+
 		/**
 		 * Subtype of this media type.
 		 * @type {string}
 		 */
 		this.subtype = subtype || '*'
+
 		/**
 		 * Suffix of this media type.
 		 * @type {string}
 		 */
 		this.suffix = suffix || null
+
 		/**
 		 * Parameters of this media type.
-		 * Parameter names are case-insensitive.
+		 *
+		 * Media type parameters are case insensitive. Both property accessors and 'in'
+		 * operator are case insensitive. However, retrieving all parameter names (keys),
+		 * as well as parameter iteration preserves letter case of parameter names from
+		 * constructor or parse method arguments.
+		 *
 		 * @type {object}
 		 */
 		ensureParametersUnique(parameters)
@@ -91,6 +110,8 @@ export default class MediaType {
 	 * @returns {MediaType} Parsed instance of a MediaType.
 	 * @throws {ParseError} When the specified textual representation of a media type is
 	 * malformed.
+	 * @throws {RepeatedParameterError} When any parameter is specified more than once
+	 * 	(including different letter cases).
 	 */
 	static parse(text, processParameter) {
 		if (processParameter == null) {
