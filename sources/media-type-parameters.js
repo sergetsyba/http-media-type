@@ -32,20 +32,20 @@ function getKeyIgnoringCase(object, key) {
 			key2.toLowerCase() === key)
 }
 
-export function verifyParametersUnique(parameters) {
+export function ensureParametersUnique(parameters) {
 	const uniqueParameters = new Set()
-	for (let parameter in parameters) {
-		parameter = parameter.toLowerCase()
-		if (uniqueParameters.has(parameter)) {
+	for (const parameter of Object.keys(parameters)) {
+		const parameter2 = parameter.toLowerCase()
+		if (uniqueParameters.has(parameter2)) {
 			throw new RepeatedParameterError(parameter)
 		}
 		else {
-			uniqueParameters.add(parameter)
+			uniqueParameters.add(parameter2)
 		}
 	}
 }
 
-export function isObjectsMatch(object1, object2, isValuesMatch) {
+export function parametersMatch(object1, object2, valuesMatch) {
 	// collect all distinct parameters
 	const keys = new Set([
 		...Object.keys(object1),
@@ -53,16 +53,15 @@ export function isObjectsMatch(object1, object2, isValuesMatch) {
 	])
 
 	for (const key of keys) {
-		let valuesMatch = isValuesMatch(key, object1[key], object2[key])
+		let match = valuesMatch(key, object1[key], object2[key])
 
 		// needs explicit check for null, since simplifying with || operator would return
 		// incorrect result when raw values are equal, but set unequal explicitly in the
 		// value comparator
-		if (valuesMatch == null) {
-			valuesMatch = object1[key] === object2[key]
+		if (match == null) {
+			match = object1[key] === object2[key]
 		}
-
-		if (valuesMatch === false) {
+		if (match === false) {
 			return false
 		}
 	}

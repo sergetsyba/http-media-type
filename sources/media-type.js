@@ -1,8 +1,8 @@
 import {ParseError} from './errors.js'
 import {
-	verifyParametersUnique,
+	ensureParametersUnique,
 	createParametersProxy,
-	isObjectsMatch
+	parametersMatch
 } from './media-type-parameters.js'
 
 export default class MediaType {
@@ -59,7 +59,7 @@ export default class MediaType {
 		 * Parameter names are case-insensitive.
 		 * @type {object}
 		 */
-		verifyParametersUnique(parameters)
+		ensureParametersUnique(parameters)
 		this.parameters = createParametersProxy(parameters)
 	}
 
@@ -231,7 +231,7 @@ export default class MediaType {
 		return this.type === mediaType.type
 			&& this.subtype === mediaType.subtype
 			&& this.suffix === mediaType.suffix
-			&& isObjectsMatch(this.parameters, mediaType.parameters, compareParameters)
+			&& parametersMatch(this.parameters, mediaType.parameters, compareParameters)
 	}
 
 	/**
@@ -250,7 +250,7 @@ export default class MediaType {
 	 *
 	 * @param {MediaType} mediaType - Media type with which this media type is being
 	 *	compared for compatibility.
-	 * @param {function(string, *, *): boolean=} matchParameters - An optional callback
+	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
 	 * 	This callback receives parameter name as its first argument, and parameter values
 	 * 	of this and compared media types as the second and the third argument
@@ -265,9 +265,9 @@ export default class MediaType {
 	 * @returns {boolean} Returns true when this media type is compatible with the
 	 *	specified one; returns false otherwise.
 	 */
-	matches(mediaType, matchParameters) {
-		if (matchParameters == null) {
-			matchParameters = (parameter, value1, value2) =>
+	matches(mediaType, compareParameters) {
+		if (compareParameters == null) {
+			compareParameters = (parameter, value1, value2) =>
 				value1 === value2
 		}
 
@@ -280,7 +280,7 @@ export default class MediaType {
 			// parameters
 			// note: media type suffix is not allowed with wildcard subtype
 			return this.type === mediaType.type
-				&& isObjectsMatch(this.parameters, mediaType.parameters, matchParameters)
+				&& parametersMatch(this.parameters, mediaType.parameters, compareParameters)
 		}
 		else {
 			return this.equals(mediaType)
