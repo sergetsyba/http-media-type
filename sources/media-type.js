@@ -1,5 +1,9 @@
-import {ParseError, RepeatedParameterError} from './errors.js'
-import {createCaseIgnoringProxy} from './case-ignoring-proxy.js'
+import {ParseError} from './errors.js'
+import {
+	verifyParametersUnique,
+	createParametersProxy,
+	isObjectsMatch
+} from './media-type-parameters.js'
 
 export default class MediaType {
 	/**
@@ -56,7 +60,7 @@ export default class MediaType {
 		 * @type {object}
 		 */
 		verifyParametersUnique(parameters)
-		this.parameters = createCaseIgnoringProxy(parameters)
+		this.parameters = createParametersProxy(parameters)
 	}
 
 	/**
@@ -299,44 +303,6 @@ const RegistrationTree = Object.freeze({
 	personal: 'personal',
 	unregistered: 'unregistered'
 })
-
-function verifyParametersUnique(parameters) {
-	const uniqueParameters = new Set()
-	for (let parameter in parameters) {
-		parameter = parameter.toLowerCase()
-		if (uniqueParameters.has(parameter)) {
-			throw new RepeatedParameterError(parameter)
-		}
-		else {
-			uniqueParameters.add(parameter)
-		}
-	}
-}
-
-function isObjectsMatch(object1, object2, isValuesMatch) {
-	// collect all distinct parameters
-	const keys = new Set([
-		...Object.keys(object1),
-		...Object.keys(object2)
-	])
-
-	for (const key of keys) {
-		let valuesMatch = isValuesMatch(key, object1[key], object2[key])
-
-		// needs explicit check for null, since simplifying with || operator would return
-		// incorrect result when raw values are equal, but set unequal explicitly in the
-		// value comparator
-		if (valuesMatch == null) {
-			valuesMatch = object1[key] === object2[key]
-		}
-
-		if (valuesMatch === false) {
-			return false
-		}
-	}
-
-	return true
-}
 
 function findIndex(text, character, start = 0, end = text.length) {
 	let index = start
