@@ -1,4 +1,4 @@
-import ParseError from './parse-error.js'
+import {ParseError, RepeatedParameterError} from './errors.js'
 import {createCaseIgnoringProxy} from './case-ignoring-proxy.js'
 
 export default class MediaType {
@@ -55,6 +55,7 @@ export default class MediaType {
 		 * Parameter names are case-insensitive.
 		 * @type {object}
 		 */
+		verifyParametersUnique(parameters)
 		this.parameters = createCaseIgnoringProxy(parameters)
 	}
 
@@ -298,6 +299,19 @@ const RegistrationTree = Object.freeze({
 	personal: 'personal',
 	unregistered: 'unregistered'
 })
+
+function verifyParametersUnique(parameters) {
+	const uniqueParameters = new Set()
+	for (let parameter in parameters) {
+		parameter = parameter.toLowerCase()
+		if (uniqueParameters.has(parameter)) {
+			throw new RepeatedParameterError(parameter)
+		}
+		else {
+			uniqueParameters.add(parameter)
+		}
+	}
+}
 
 function isObjectsMatch(object1, object2, isValuesMatch) {
 	// collect all distinct parameters

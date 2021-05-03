@@ -1,5 +1,5 @@
 import MediaType from '../sources/media-type.js'
-import ParseError from '../sources/parse-error.js'
+import {RepeatedParameterError, ParseError} from '../sources/errors.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
@@ -53,6 +53,16 @@ describe('MediaType', () => {
 				subtype: '*',
 				suffix: null,
 				parameters: {}
+			})
+		})
+
+		it('fails with repeated parameters', () => {
+			assert.throws(() => {
+				new MediaType('application', 'vnd.company.content', {
+					charset: 'utf-8',
+					version: 2,
+					CharSet: 'utf-8'
+				}, RepeatedParameterError)
 			})
 		})
 	})
