@@ -62,7 +62,7 @@ describe('MediaType', () => {
 					charset: 'utf-8',
 					version: 2,
 					CharSet: 'utf-8'
-				}, RepeatedParameterError)
+				}, new RepeatedParameterError('CharSet'))
 			})
 		})
 	})
@@ -139,10 +139,23 @@ describe('MediaType', () => {
 
 			assert.deepEqual(mediaType.parameters, {})
 		})
+
+		it('fails with repeated parameters', () => {
+			assert.throws(() => {
+				new MediaType({
+					subtype: 'vnd.company.content',
+					parameters: {
+						Version: 2,
+						CharSet: 'utf-8',
+						version: 2,
+					}
+				})
+			}, new RepeatedParameterError('version'))
+		})
 	})
 
-	describe('parameters', () => {
-		it('verifies property in ignoring case', () => {
+	describe('ignores parameters case', () => {
+		it('verifies property in', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -153,7 +166,7 @@ describe('MediaType', () => {
 			assert('VARIANT' in mediaType.parameters)
 		})
 
-		it('gets property ignoring case', () => {
+		it('gets property', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -164,7 +177,7 @@ describe('MediaType', () => {
 			assert.equal(mediaType.parameters['VARIANT'], 'HAL')
 		})
 
-		it('deletes property ignoring case', () => {
+		it('deletes property', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -185,7 +198,7 @@ describe('MediaType', () => {
 			})
 		})
 
-		it('gets properties preserving case', () => {
+		it('preserves case when getting all parameters', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -197,7 +210,7 @@ describe('MediaType', () => {
 			])
 		})
 
-		it('iterates properties preserving case', () => {
+		it('preserves case when iterating parameters', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
