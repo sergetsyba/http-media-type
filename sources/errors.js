@@ -1,7 +1,7 @@
 export class RepeatedParameterError extends Error {
-	constructor(parameter) {
+	constructor(parameters) {
 		super()
-		this.parameter = parameter
+		this.parameters = parameters
 	}
 }
 

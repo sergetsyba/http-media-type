@@ -4,7 +4,6 @@ import {
 } from './errors.js'
 
 import {
-	ensureParametersUnique,
 	createParametersProxy,
 	parametersMatch
 } from './media-type-parameters.js'
@@ -71,14 +70,14 @@ export default class MediaType {
 		/**
 		 * Parameters of this media type.
 		 *
-		 * Media type parameters are case insensitive. Both property accessors and 'in'
-		 * operator are case insensitive. However, retrieving all parameter names (keys),
-		 * as well as parameter iteration preserves letter case of parameter names from
-		 * constructor or parse method arguments.
+		 * Both property accessors and 'in' operator are case insensitive. However,
+		 * retrieving all parameter names (keys), as well as parameter iteration
+		 * preserves letter case of parameter names from constructor or parse method
+		 * arguments.
 		 *
 		 * @type {object}
 		 */
-		ensureParametersUnique(parameters)
+		ensureParametersDistinct(parameters)
 		this.parameters = createParametersProxy(parameters)
 	}
 
@@ -140,6 +139,8 @@ export default class MediaType {
 		}
 
 		const parameters = {}
+		const sameCaseRepeatedParameters = []
+
 		for (let parameterIndex = parametersIndex; parameterIndex < text.length; ) {
 			const valueIndex = findIndex(text, '=', parameterIndex + 1)
 			const parameter = text.substring(parameterIndex + 1, valueIndex)
@@ -154,12 +155,18 @@ export default class MediaType {
 			if (processedValue != null) {
 				// throw an error when parameter is repeated
 				if (parameter in parameters) {
-					throw new RepeatedParameterError(parameter)
+					sameCaseRepeatedParameters.push(parameter)
 				}
-				parameters[parameter] = processedValue
+				else {
+					parameters[parameter] = processedValue
+				}
 			}
 		}
 
+		// ensure no repeated parameters present
+		ensureParametersDistinct(parameters, sameCaseRepeatedParameters)
+
+		// create a parsed media type instance
 		return new MediaType({
 			type,
 			subtype,
@@ -338,4 +345,23 @@ function findIndex(text, character, start = 0, end = text.length) {
 	}
 
 	return index;
+}
+
+function ensureParametersDistinct(parameters, sameCaseParameters = []) {
+	const repeatedParameters = sameCaseParameters || []
+	const distinctParameters = new Set()
+
+	for (const parameter of Object.keys(parameters)) {
+		const formattedParameter = parameter.toLowerCase()
+		if (distinctParameters.has(formattedParameter)) {
+			repeatedParameters.push(parameter)
+		}
+		else {
+			distinctParameters.add(formattedParameter)
+		}
+	}
+
+	if (repeatedParameters.length > 0) {
+		throw new RepeatedParameterError(repeatedParameters)
+	}
 }

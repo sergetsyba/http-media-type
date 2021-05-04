@@ -1,5 +1,3 @@
-import {RepeatedParameterError} from './errors.js'
-
 export function createParametersProxy(object) {
 	return new Proxy(object, {
 		has(target, key) {
@@ -30,19 +28,6 @@ function getKeyIgnoringCase(object, key) {
 	return Object.keys(object)
 		.find((key2) =>
 			key2.toLowerCase() === key)
-}
-
-export function ensureParametersUnique(parameters) {
-	const uniqueParameters = new Set()
-	for (const parameter of Object.keys(parameters)) {
-		const parameter2 = parameter.toLowerCase()
-		if (uniqueParameters.has(parameter2)) {
-			throw new RepeatedParameterError(parameter)
-		}
-		else {
-			uniqueParameters.add(parameter2)
-		}
-	}
 }
 
 export function parametersMatch(object1, object2, valuesMatch) {

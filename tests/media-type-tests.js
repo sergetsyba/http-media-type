@@ -61,8 +61,10 @@ describe('MediaType', () => {
 				new MediaType('application', 'vnd.company.content', {
 					charset: 'utf-8',
 					version: 2,
-					CharSet: 'utf-8'
-				}, new RepeatedParameterError('CharSet'))
+					CharSet: 'utf-8',
+					encoding: 'zip',
+					VERSION: 2
+				}, new RepeatedParameterError(['CharSet', 'VERSION']))
 			})
 		})
 	})
@@ -150,7 +152,7 @@ describe('MediaType', () => {
 						version: 2,
 					}
 				})
-			}, new RepeatedParameterError('version'))
+			}, new RepeatedParameterError(['version']))
 		})
 	})
 
@@ -388,17 +390,26 @@ describe('MediaType', () => {
 		})
 
 		it('fails with repeated parameters', () => {
-			const mediaType = 'application/json; charset=utf-8; schema=HAL; charset=utf-8'
+			const mediaType = 'application/json; ' +
+				'charset=utf-8; ' +
+				'schema=HAL; ' +
+				'charset=utf-8'
+
 			assert.throws(() => {
 				MediaType.parse(mediaType)
-			}, new RepeatedParameterError('charset'))
+			}, new RepeatedParameterError(['charset']))
 		})
 
 		it('fails with repeated parameters in different case', () => {
-			const mediaType = 'application/json; charset=utf-8; schema=HAL; CharSet=utf-8'
+			const mediaType = 'application/json; ' +
+				'charset=utf-8; ' +
+				'schema=HAL; ' +
+				'charset=utf-8; ' +
+				'Schema=HAL'
+
 			assert.throws(() => {
 				MediaType.parse(mediaType)
-			}, new RepeatedParameterError('CharSet'))
+			}, new RepeatedParameterError(['charset', 'Schema']))
 		})
 	})
 
@@ -448,15 +459,24 @@ describe('MediaType', () => {
 		})
 
 		it('fails with repeated parameters', () => {
-			const mediaType = 'application/json; charset=utf-8; schema=HAL; CharSet=utf-8'
+			const mediaType = 'application/json; ' +
+				'charset=utf-8; ' +
+				'schema=HAL; ' +
+				'CharSet=utf-8; ' +
+				'schema=HAL'
+
 			assert.throws(() => {
 				MediaType.parse(mediaType, (parameter, value) =>
 					value.toLowerCase())
-			}, new RepeatedParameterError('CharSet'))
+			}, new RepeatedParameterError(['schema', 'CharSet']))
 		})
 
 		it('ignores repeated parameters when parameter processing does not return a value', () => {
-			let mediaType = 'application/vnd.company.content; date=today; version=1; date=2032-04-17'
+			let mediaType = 'application/vnd.company.content; ' +
+				'date=today; ' +
+				'version=1; ' +
+				'date=2032-04-17'
+
 			mediaType = MediaType.parse(mediaType, (parameter, value) => {
 				if (parameter === 'version') {
 					return Number.parseInt(value)
