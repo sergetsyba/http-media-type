@@ -10,3 +10,9 @@ export class ParseError extends Error {
 		super(message)
 	}
 }
+
+export class MalformedMediaType extends ParseError {
+	constructor(mediaType) {
+		super(`Malformed media type: ${mediaType}.`);
+	}
+}
