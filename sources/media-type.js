@@ -1,13 +1,6 @@
-import {
-	RepeatedParameterError,
-	ParseError
-} from './errors.js'
-
-import {
-	createParametersProxy,
-	parametersMatch
-} from './media-type-parameters.js'
+import {createParametersProxy, parametersMatch} from './media-type-parameters.js'
 import {parseMediaType} from './media-type-parser.js'
+import {RepeatedParameterError} from './errors.js'
 
 
 export default class MediaType {
@@ -191,7 +184,7 @@ export default class MediaType {
 	 *
 	 * @param {MediaType} mediaType - A media type, with which this media is being
 	 * 	compared for equality.
-	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
+	 * @param {function(string, *, *): boolean=} compareParameter - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
 	 * 	This callback receives parameter name as its first argument, and parameter values
 	 * 	of this and compared media types as the second and the third argument
@@ -206,16 +199,16 @@ export default class MediaType {
 	 * @returns {boolean} Returns true when this media type is equal to the
 	 *		specified one; returns false otherwise.
 	 */
-	equals(mediaType, compareParameters) {
-		if (compareParameters == null) {
-			compareParameters = (parameter, value1, value2) =>
+	equals(mediaType, compareParameter) {
+		if (compareParameter == null) {
+			compareParameter = (parameter, value1, value2) =>
 				value1 === value2
 		}
 
 		return this.type === mediaType.type
 			&& this.subtype === mediaType.subtype
 			&& this.suffix === mediaType.suffix
-			&& parametersMatch(this.parameters, mediaType.parameters, compareParameters)
+			&& parametersMatch(this.parameters, mediaType.parameters, compareParameter)
 	}
 
 	/**
@@ -234,7 +227,7 @@ export default class MediaType {
 	 *
 	 * @param {MediaType} mediaType - Media type with which this media type is being
 	 *	compared for compatibility.
-	 * @param {function(string, *, *): boolean=} compareParameters - An optional callback
+	 * @param {function(string, *, *): boolean=} compareParameter - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
 	 * 	This callback receives parameter name as its first argument, and parameter values
 	 * 	of this and compared media types as the second and the third argument
@@ -249,23 +242,25 @@ export default class MediaType {
 	 * @returns {boolean} Returns true when this media type is compatible with the
 	 *	specified one; returns false otherwise.
 	 */
-	matches(mediaType, compareParameters) {
-		if (compareParameters == null) {
-			compareParameters = (parameter, value1, value2) =>
+	matches(mediaType, compareParameter) {
+		if (compareParameter == null) {
+			compareParameter = (parameter, value1, value2) =>
 				value1 === value2
 		}
 
 		if (this.type === '*' || mediaType.type === '*') {
 			// wildcard media type matches any media type
 			return true
-		} else if (this.subtype === '*' || mediaType.subtype === '*') {
+		}
+		else if (this.subtype === '*' || mediaType.subtype === '*') {
 			// media type with wildcard subtype matches any media with same type and
 			// parameters
 			// note: media type suffix is not allowed with wildcard subtype
 			return this.type === mediaType.type
-				&& parametersMatch(this.parameters, mediaType.parameters, compareParameters)
-		} else {
-			return this.equals(mediaType)
+				&& parametersMatch(this.parameters, mediaType.parameters, compareParameter)
+		}
+		else {
+			return this.equals(mediaType, compareParameter)
 		}
 	}
 }

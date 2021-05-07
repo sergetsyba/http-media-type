@@ -196,8 +196,7 @@ describe('MediaType', () => {
 			})
 
 			delete mediaType.parameters['VARIANT']
-			assert.deepEqual(mediaType.parameters, {
-			})
+			assert.deepEqual(mediaType.parameters, {})
 		})
 
 		it('preserves case when getting all parameters', () => {
@@ -233,7 +232,7 @@ describe('MediaType', () => {
 
 	describe('gets registration tree type', () => {
 		it('with standards tree', () => {
-			const mediaType = new MediaType('application','json')
+			const mediaType = new MediaType('application', 'json')
 			assert.equal(mediaType.registrationTree, 'standards')
 		})
 
@@ -903,7 +902,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters))
 		})
 
-		it('does not match with wildcard subtype and unequal implicitly processed values', () => {
+		it('does not verify with wildcard subtype and unequal implicitly processed values', () => {
 			const mediaType1 = MediaType.parse('application/*; version=1; charset=UTF-8')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8; version=2')
 
@@ -919,7 +918,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters) === false)
 		})
 
-		it('verifies without parameters', () => {
+		it('verifies with wildcard subtype without parameters', () => {
 			const mediaType1 = MediaType.parse('application/*')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format')
 
@@ -927,6 +926,17 @@ describe('MediaType', () => {
 				value1 === value2
 
 			assert(mediaType1.matches(mediaType2))
+			assert(mediaType1.matches(mediaType2, matchParameters))
+			assert(mediaType2.matches(mediaType1, matchParameters))
+		})
+
+		it('verifies with same media type and equal processed values', () => {
+			const mediaType1 = MediaType.parse('application/vnd.company.content+format; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/vnd.company.content+format; charset=utf-8')
+
+			const matchParameters = (parameter, value1, value2) =>
+				value1.toLowerCase() === value2.toLowerCase()
+
 			assert(mediaType1.matches(mediaType2, matchParameters))
 			assert(mediaType2.matches(mediaType1, matchParameters))
 		})
