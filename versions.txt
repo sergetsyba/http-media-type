@@ -12,3 +12,8 @@
 1.2.0
 	- Matching media types with wildcards
 	- Custom parameter value comparison in media type comparison for equality and match
+
+1.3.0
+	- Case-insensitive media type parameters
+	- Support for quoted parameter values in media type parsing
+	- Improved media type parsing
