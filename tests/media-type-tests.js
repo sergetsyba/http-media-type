@@ -1,5 +1,5 @@
 import MediaType from '../sources/media-type.js'
-import {RepeatedParameterError, ParseError} from '../sources/errors.js'
+import {RepeatedParameterError} from '../sources/errors.js'
 import {strict as assert} from 'assert'
 
 describe('MediaType', () => {
@@ -276,119 +276,6 @@ describe('MediaType', () => {
 			})
 		})
 
-		it('without suffix', () => {
-			const mediaType = MediaType.parse('application/vnd.company.content; ' +
-				'param1=value1; ' +
-				'param2=value2')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application',
-				subtype: 'vnd.company.content',
-				suffix: null,
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
-			})
-		})
-
-		it('without parameters', () => {
-			const mediaType = MediaType.parse('application/vnd.company.content+format')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application',
-				subtype: 'vnd.company.content',
-				suffix: 'format',
-				parameters: {}
-			})
-		})
-
-		it('with minimal properties', () => {
-			const mediaType = MediaType.parse('application/vnd.company.content')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application',
-				subtype: 'vnd.company.content',
-				suffix: null,
-				parameters: {}
-			})
-		})
-
-		it('with wildcard subtype', () => {
-			const mediaType = MediaType.parse('application/*+format; ' +
-				'param1=value1; ' +
-				'param2=value2')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application',
-				subtype: '*',
-				suffix: 'format',
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
-			})
-		})
-
-		it('wildcard', () => {
-			const mediaType = MediaType.parse('*/*')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: '*',
-				subtype: '*',
-				suffix: null,
-				parameters: {}
-			})
-		})
-
-		it('with non-alphanumeric characters', () => {
-			const mediaType = MediaType.parse('application!#$&-^_/vnd.company.!#$&-^_content+format!#$&-^_;' +
-				'param1=value1!#$&-^_;' +
-				'param2=value2!#$&-^_')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application!#$&-^_',
-				subtype: 'vnd.company.!#$&-^_content',
-				suffix: 'format!#$&-^_',
-				parameters: {
-					param1: 'value1!#$&-^_',
-					param2: 'value2!#$&-^_'
-				}
-			})
-		})
-
-		it('with subtype with multiple plus signs', () => {
-			const mediaType = MediaType.parse('application/vnd.company+corporation.content+media+format')
-
-			Object.setPrototypeOf(mediaType, Object.prototype)
-			assert.deepEqual(mediaType, {
-				type: 'application',
-				subtype: 'vnd.company+corporation.content+media',
-				suffix: 'format',
-				parameters: {}
-			})
-		})
-
-		it('fails with subtype containing slashes', () => {
-			const mediaType = 'application/vnd/company/content+format; param1=value1'
-			assert.throws(() => {
-				MediaType.parse(mediaType)
-			}, ParseError)
-		})
-
-		it('fails with subtype containing spaces', () => {
-			const mediaType = 'application/vnd company content+format; param1=value1'
-			assert.throws(() => {
-				MediaType.parse(mediaType)
-			}, ParseError)
-		})
-
 		it('fails with repeated parameters', () => {
 			const mediaType = 'application/json; ' +
 				'charset=utf-8; ' +
@@ -468,7 +355,7 @@ describe('MediaType', () => {
 			assert.throws(() => {
 				MediaType.parse(mediaType, (parameter, value) =>
 					value.toLowerCase())
-			}, new RepeatedParameterError(['schema', 'CharSet']))
+			}, new RepeatedParameterError(['CharSet', 'schema']))
 		})
 
 		it('ignores repeated parameters when parameter processing does not return a value', () => {

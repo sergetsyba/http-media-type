@@ -7,6 +7,7 @@ import {
 	createParametersProxy,
 	parametersMatch
 } from './media-type-parameters.js'
+import {parseMediaType} from './media-type-parser.js'
 
 
 export default class MediaType {
@@ -77,8 +78,7 @@ export default class MediaType {
 		 *
 		 * @type {object}
 		 */
-		ensureParametersDistinct(parameters)
-		this.parameters = createParametersProxy(parameters)
+		this.parameters = processParameters(parameters)
 	}
 
 	/**
@@ -117,60 +117,12 @@ export default class MediaType {
 			processParameter = (parameter, value) => value
 		}
 
-		const parametersIndex = findIndex(text, ';')
+		// parse media type and regroup parameters into an object
+		const mediaType = parseMediaType(text)
+		const parameters = processParsedParameters(mediaType.parameters, processParameter)
 
-		// ensure base text does not include white space
-		const mediaType = text.substring(0, parametersIndex)
-		if (/\s/.test(text.substring(0, parametersIndex))) {
-			throw new ParseError('Malformed media type: ' + text)
-		}
-
-		// ensure base text includes only a single slash
-		let [type, subtype, ...rest] = mediaType.split('/')
-		if (rest.length > 0) {
-			throw new ParseError('Malformed media type: ' + text)
-		}
-
-		let suffix = null
-		const suffixIndex = subtype.lastIndexOf('+')
-		if (suffixIndex > -1) {
-			suffix = subtype.substring(suffixIndex + 1)
-			subtype = subtype.substring(0, suffixIndex)
-		}
-
-		const parameters = {}
-		const sameCaseRepeatedParameters = []
-
-		for (let parameterIndex = parametersIndex; parameterIndex < text.length; ) {
-			const valueIndex = findIndex(text, '=', parameterIndex + 1)
-			const parameter = text.substring(parameterIndex + 1, valueIndex)
-				.trim()
-
-			parameterIndex = findIndex(text, ';', valueIndex)
-			const value = text.substring(valueIndex + 1, parameterIndex)
-
-			// apply an optional callback to process the parameter value
-			const processedValue = processParameter(parameter, value)
-			// keep parameter only when the callback returns a value
-			if (processedValue != null) {
-				// throw an error when parameter is repeated
-				if (parameter in parameters) {
-					sameCaseRepeatedParameters.push(parameter)
-				}
-				else {
-					parameters[parameter] = processedValue
-				}
-			}
-		}
-
-		// ensure no repeated parameters present
-		ensureParametersDistinct(parameters, sameCaseRepeatedParameters)
-
-		// create a parsed media type instance
 		return new MediaType({
-			type,
-			subtype,
-			suffix,
+			...mediaType,
 			parameters
 		})
 	}
@@ -306,15 +258,13 @@ export default class MediaType {
 		if (this.type === '*' || mediaType.type === '*') {
 			// wildcard media type matches any media type
 			return true
-		}
-		else if (this.subtype === '*' || mediaType.subtype === '*') {
+		} else if (this.subtype === '*' || mediaType.subtype === '*') {
 			// media type with wildcard subtype matches any media with same type and
 			// parameters
 			// note: media type suffix is not allowed with wildcard subtype
 			return this.type === mediaType.type
 				&& parametersMatch(this.parameters, mediaType.parameters, compareParameters)
-		}
-		else {
+		} else {
 			return this.equals(mediaType)
 		}
 	}
@@ -336,32 +286,46 @@ const RegistrationTree = Object.freeze({
 	unregistered: 'unregistered'
 })
 
-function findIndex(text, character, start = 0, end = text.length) {
-	let index = start
-	for (; index < end; ++index) {
-		if (text.charAt(index) === character) {
-			break
-		}
-	}
 
-	return index;
-}
+function processParameters(parameters) {
+	const repeatedParameters = []
+	parameters = Object.entries(parameters)
+		.reduce((parameters, [parameter, value]) => {
+			if (parameter in parameters) {
+				repeatedParameters.push(parameter)
+			}
 
-function ensureParametersDistinct(parameters, sameCaseParameters = []) {
-	const repeatedParameters = sameCaseParameters || []
-	const distinctParameters = new Set()
+			parameters[parameter] = value
+			return parameters
+		}, createParametersProxy({}))
 
-	for (const parameter of Object.keys(parameters)) {
-		const formattedParameter = parameter.toLowerCase()
-		if (distinctParameters.has(formattedParameter)) {
-			repeatedParameters.push(parameter)
-		}
-		else {
-			distinctParameters.add(formattedParameter)
-		}
-	}
-
+	// ensure no repeated parameters present
 	if (repeatedParameters.length > 0) {
 		throw new RepeatedParameterError(repeatedParameters)
 	}
+
+	return parameters
+}
+
+function processParsedParameters(parameters, processParameter) {
+	const repeatedParameters = []
+	parameters = parameters
+		.reduce((parameters, {parameter, value}) => {
+			value = processParameter(parameter, value)
+			if (value != null) {
+				if (parameter in parameters) {
+					repeatedParameters.push(parameter)
+				}
+				parameters[parameter] = value
+			}
+
+			return parameters
+		}, createParametersProxy({}))
+
+	// ensure no repeated parameters present
+	if (repeatedParameters.length > 0) {
+		throw new RepeatedParameterError(repeatedParameters)
+	}
+
+	return parameters
 }
