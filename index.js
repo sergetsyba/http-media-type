@@ -1,11 +1,5 @@
-import MediaType from './sources/media-type.js'
-import {
+export {default} from './sources/media-type.js'
+export {
 	RepeatedParameterError,
 	ParseError
 } from './sources/errors.js'
-
-export {
-	MediaType,
-	RepeatedParameterError,
-	ParseError
-}
