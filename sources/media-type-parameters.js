@@ -8,6 +8,11 @@ export function createParametersProxy(object) {
 			key = getKeyIgnoringCase(target, key)
 			return target[key]
 		},
+		set(target, key, value) {
+			key = getKeyIgnoringCase(target, key) || key
+			target[key] = value
+			return true
+		},
 		deleteProperty(target, key) {
 			key = getKeyIgnoringCase(target, key)
 			delete target[key]

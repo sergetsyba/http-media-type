@@ -157,7 +157,7 @@ describe('MediaType', () => {
 	})
 
 	describe('ignores parameters case', () => {
-		it('verifies property in', () => {
+		it('verifying property in', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -168,7 +168,7 @@ describe('MediaType', () => {
 			assert('VARIANT' in mediaType.parameters)
 		})
 
-		it('gets property', () => {
+		it('getting property', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -179,7 +179,17 @@ describe('MediaType', () => {
 			assert.equal(mediaType.parameters['VARIANT'], 'HAL')
 		})
 
-		it('deletes property', () => {
+		it('setting property', () => {
+			const mediaType = new MediaType('application', 'json')
+			mediaType.parameters['charset'] = 'utf-8'
+			mediaType.parameters['CharSet'] = 'UTF-8'
+
+			assert.deepEqual(mediaType.parameters, {
+				charset: 'UTF-8'
+			})
+		})
+
+		it('deleting property', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
