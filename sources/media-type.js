@@ -2,7 +2,6 @@ import {createParametersProxy, parametersMatch} from './media-type-parameters.js
 import {parseMediaType} from './media-type-parser.js'
 import {RepeatedParameterError} from './errors.js'
 
-
 export default class MediaType {
 	/**
 	 * Creates a new instance of MediaType.
@@ -33,13 +32,19 @@ export default class MediaType {
 	 */
 	constructor(type, subtype, parameters = {}) {
 		let suffix = null
+		let parametersProcessed = false
+
 		if (arguments.length === 1
 			&& typeof arguments[0] === 'object') {
 			({
+				// public properties
 				type = 'application',
 				subtype,
-				suffix,
-				parameters = {}
+				suffix = null,
+				parameters = {},
+
+				// private properties
+				parametersProcessed = false
 			} = arguments[0])
 		}
 
@@ -71,7 +76,9 @@ export default class MediaType {
 		 *
 		 * @type {object}
 		 */
-		this.parameters = processParameters(parameters)
+		this.parameters = parametersProcessed
+			? parameters
+			: processParameters(parameters)
 	}
 
 	/**
@@ -115,9 +122,12 @@ export default class MediaType {
 		const mediaType = parseMediaType(text)
 		const parameters = processParsedParameters(mediaType.parameters, processParameter)
 
+		// create an instance of media type and flag that parameters are already wrapped
+		// into a case insensitive proxy
 		return new MediaType({
 			...mediaType,
-			parameters
+			parameters,
+			parametersProcessed: true
 		})
 	}
 
