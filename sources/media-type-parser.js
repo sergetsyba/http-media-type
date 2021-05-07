@@ -2,7 +2,7 @@ import {MalformedMediaType} from "./errors.js";
 
 
 const baseRegex = /^\s*(?<type>[^\/\s]+)\/(?<subtype>[^\/;\s]+)\s*($|;)/
-const parameterRegex = /;\s*(?<parameter>[^=]+)\s*=\s*(?<value>[^;]+)\s*/g
+const parameterRegex = /;\s*(?<parameter>[^=]+)\s*=\s*(("(?<quotedValue>[^"]+)")|(?<value>[^;]+))/g
 
 export function parseMediaType(text) {
 	const match = baseRegex.exec(text)
@@ -35,12 +35,12 @@ function parseParameters(text) {
 
 	let match = parameterRegex.exec(text)
 	while (match != null) {
-		const {parameter, value} = match.groups
+		const {parameter, quotedValue, value} = match.groups
 		match = parameterRegex.exec(text)
 
 		parameters.push({
 			parameter,
-			value
+			value: quotedValue || value
 		})
 	}
 

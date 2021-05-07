@@ -52,6 +52,29 @@ describe('parses media type', () => {
 		})
 	})
 
+	it('with quoted parameter values', () => {
+		const mediaType = parseMediaType('application/vnd.company.content+format; ' +
+			'param1="value1"; ' +
+			'param2="va;lue;2"; ' +
+			'param3="value3')
+
+		assert.deepEqual(mediaType, {
+			type: 'application',
+			subtype: 'vnd.company.content',
+			suffix: 'format',
+			parameters: [{
+				parameter: 'param1',
+				value: 'value1'
+			}, {
+				parameter: 'param2',
+				value: 'va;lue;2'
+			}, {
+				parameter: 'param3',
+				value: '"value3'
+			}]
+		})
+	})
+
 	it('with repeated parameters', () => {
 		const mediaType = parseMediaType('application/json; ' +
 			'param1=value1; ' +
