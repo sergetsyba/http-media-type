@@ -106,7 +106,8 @@ export default class MediaType {
 	 * 	(including different letter cases).
 	 */
 	static parse(text, processParameter) {
-		if (processParameter == null) {
+		// note: also covers when processParameter == null
+		if (typeof processParameter !== 'function') {
 			processParameter = (parameter, value) => value
 		}
 
@@ -200,7 +201,8 @@ export default class MediaType {
 	 *		specified one; returns false otherwise.
 	 */
 	equals(mediaType, compareParameter) {
-		if (compareParameter == null) {
+		// note: also covers when processParameter == null
+		if (typeof compareParameter !== 'function') {
 			compareParameter = (parameter, value1, value2) =>
 				value1 === value2
 		}
@@ -243,7 +245,7 @@ export default class MediaType {
 	 *	specified one; returns false otherwise.
 	 */
 	matches(mediaType, compareParameter) {
-		if (compareParameter == null) {
+		if (typeof compareParameter !== 'function') {
 			compareParameter = (parameter, value1, value2) =>
 				value1 === value2
 		}

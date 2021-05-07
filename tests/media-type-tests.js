@@ -952,4 +952,22 @@ describe('MediaType', () => {
 			assert(mediaType1.matches(mediaType2, matchParameters) === false)
 		})
 	})
+
+	describe('checks optional callback types', () => {
+		it('in parse', () => {
+			MediaType.parse('application/json', 'nope')
+		})
+
+		it('in equals', () => {
+			const mediaType1 = MediaType.parse('application/json; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
+			mediaType1.equals(mediaType2, 'nope')
+		})
+
+		it('in matches', () => {
+			const mediaType1 = MediaType.parse('application/json; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/*; charset=utf-8')
+			mediaType1.matches(mediaType2, 'nope')
+		})
+	})
 })
