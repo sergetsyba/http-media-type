@@ -1,5 +1,5 @@
 import {strict as assert} from 'assert'
-import {parseMediaType} from '../sources/media-type-parser.js'
+import {parseMediaType} from '../sources/parser.js'
 import {ParseError} from '../sources/errors.js'
 
 describe('parses media type', () => {

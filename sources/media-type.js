@@ -1,5 +1,5 @@
-import {createParametersProxy, parametersMatch} from './media-type-parameters.js'
-import {parseMediaType} from './media-type-parser.js'
+import {createParametersProxy, parametersMatch} from './parameters.js'
+import {parseMediaType} from './parser.js'
 import {RepeatedParameterError} from './errors.js'
 
 export default class MediaType {
