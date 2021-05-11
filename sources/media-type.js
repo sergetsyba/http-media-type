@@ -69,10 +69,9 @@ export default class MediaType {
 		/**
 		 * Parameters of this media type.
 		 *
-		 * Both property accessors and 'in' operator are case insensitive. However,
-		 * retrieving all parameter names (keys), as well as parameter iteration
-		 * preserves letter case of parameter names from constructor or parse method
-		 * arguments.
+		 * Parameters are case insensitive with property accessor [...] and 'in'
+		 * operator. Parameters preserve letter case from constructor or parse function
+		 * arguments when iterated or accessed all at once.
 		 *
 		 * @type {object}
 		 */
@@ -86,24 +85,24 @@ export default class MediaType {
 	 * representation of a media type.
 	 *
 	 * This implementation is less restrictive than media type specification in
-	 * RFC 6838 section 4.2. It allows any characters other than white space and / to be
-	 * used in type, subtype and suffix, as well as does not impose any length limits on
-	 * those values.
+	 * RFC 6838 section 4.2 and RFC 7231 section 5.3.2. In addition these specifications
+	 * this implementation
+	 * 	- allows any characters in type, except /
+	 * 	- allows any characters in subtype, except ;
+	 * 	- imposes no length restriction on type and subtype
+	 * 	- allows white space around = in parameters
 	 *
-	 * When an optional callback for processing media type parameters is specified, its
-	 * output is stored as a value of corresponding parameters. When this callback does
-	 * not return a value the corresponding parameter is ignored. This callback can be
-	 * used to e.g. convert media type parameters from text to JavaScript types, apply
-	 * formatting, ignore unwanted parameters, etc.
+	 * An optional callback can be specified for additional parameter value processing.
+	 * This allows converting parameter values to other types, ignoring some parameters,
+	 * etc.
 	 *
 	 * @param {string} text - Textual representation of a media type.
 	 * @param {function(string, string): *=} processParameter - An optional callback for
-	 * 	additional processing media type parameter values. It is called for each
-	 * 	parameter of the parsed media type with parameter name and value as its
-	 * 	arguments.
-	 * 	The callback should return the processed parameter value. When no value is
-	 * 	returned, the processed parameter is ignored and will not be present in the
-	 * 	parsed media type.
+	 * 	additional processing of media type parameter values.
+	 * 	This callback is called for each of the parsed parameters with parameter name and
+	 * 	value as its arguments. It should return the processed parameter value. When no
+	 * 	value is returned, the processed parameter is ignored and will not be present in
+	 * 	the parsed media type.
 	 * 	When this callback is not specified, all parameter values are stored as strings.
 	 *
 	 * @returns {MediaType} Parsed instance of a MediaType.
@@ -187,21 +186,18 @@ export default class MediaType {
 	/**
 	 * Checks whether this media type is equal to the specified one.
 	 *
-	 * All media type parameter values are compared with strict equality operator (===).
-	 * When an optional callback is specified, it is used instead to determine parameter
-	 * value equality. This callback can be used to e.g. do additional processing in
-	 * parameter values comparison, or ignore certain parameters when checking for media
-	 * types equality.
+	 * An optional callback can be specified for custom parameter comparison. It allows
+	 * to compare parameter values of different types, ignore some parameters, etc.
 	 *
 	 * @param {MediaType} mediaType - A media type, with which this media is being
 	 * 	compared for equality.
 	 * @param {function(string, *, *): boolean=} compareParameter - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
-	 * 	This callback receives parameter name as its first argument, and parameter values
-	 * 	of this and compared media types as the second and the third argument
-	 * 	respectively. When a parameter appears only in one of the compared media types,
-	 * 	this callback receives undefined as the argument for parameter value of the media
-	 * 	type where parameter is absent.
+	 * 	This callback is called for each parameter with parameter name as its first
+	 * 	argument, and parameter values of this and compared media types as the second and
+	 * 	the third argument respectively. When a parameter appears only in one of the
+	 * 	compared media types, this callback is called with undefined as the argument for
+	 * 	parameter value of the media type where parameter is absent.
 	 * 	The callback should return a boolean indicating whether the values of a parameter
 	 * 	are equal. When no value is returned, the values are compared with strict
 	 * 	equality operator (===).
@@ -230,7 +226,10 @@ export default class MediaType {
 	 * This method is similar to equals() method, except it accounts for wildcards (*)
 	 * in media type properties. It is better suited for HTTP content negotiation.
 	 *
-	 * Media types are matched according to the following rules:
+	 * An optional callback can be specified for custom parameter comparison. It allows
+	 * to compare parameter values of different types, ignore some parameters, etc.
+	 *
+	 * Media types are matched as follows:
 	 * 	- wildcard media type (*\/*) matches any media type;
 	 * 	- media type with wildcard subtype (type\/*) matches media iff their type and
 	 * 		parameters are equal;
@@ -241,11 +240,11 @@ export default class MediaType {
 	 *	compared for compatibility.
 	 * @param {function(string, *, *): boolean=} compareParameter - An optional callback
 	 * 	for custom comparison of parameter values of the compared media types.
-	 * 	This callback receives parameter name as its first argument, and parameter values
-	 * 	of this and compared media types as the second and the third argument
-	 * 	respectively. When a parameter appears only in one of the compared media types,
-	 * 	this callback receives undefined as the argument for parameter value of the media
-	 * 	type where parameter is absent.
+	 * 	This callback is called for each parameter with parameter name as its first
+	 * 	argument, and parameter values of this and compared media types as the second and
+	 * 	the third argument respectively. When a parameter appears only in one of the
+	 * 	compared media types, this callback is called with undefined as the argument for
+	 * 	parameter value of the media type where parameter is absent.
 	 * 	The callback should return a boolean indicating whether the values of a parameter
 	 * 	are equal. When no value is returned, the values are compared with strict
 	 * 	equality operator (===).
