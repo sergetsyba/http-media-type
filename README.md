@@ -3,7 +3,7 @@
 A utility library for processing HTTP and MIME media types.
 
 ## Key features
-* Parse and format media types according to [RFC 6838][RFC 6838].
+* Parse and format media types according to [RFC 7231][RFC 7231], [RFC 6838][RFC 6838].
 * Compare for equality and compatibility with other media types.
 * Custom process media type parameters in parsing and comparison.
 
@@ -54,18 +54,21 @@ const mediaType = MediaType.parse('application/vnd.company.media+format; version
 
 ... and with additional parameter processing
 ```javascript
-const mediaType = MediaType.parse('application/vnd.company.media+format; version=1',
+const mediaType = MediaType.parse('application/vnd.company.media+format; version=1; embedded=other-content; q=0.9',
 	(parameter, value) => {
-		if (parameter === 'version') {
-			return Number.parseInt(value)
+		switch (parameter) {
+			case 'version':
+				// convert 'version' to int
+				return Number.parseInt(value)
+			case 'q':
+				// ignore 'q'
+				return undefined
+			default:
+				// store other parmeter values as strings
+				return value
 		}
 	})
 ```
-
-When the optional parameter processing callback is not specified, all
-parsed parameter values are stored as strings. When the callback does
-not return any value, the corresponding parameter will be absent from
-the parsed media type instance.
 
 ### Formatting
 The `formatted` property holds the textual representation of the media
@@ -102,35 +105,28 @@ mediaType1.equals(mediaType2)
 
 ...and with custom parameter value comparison
 ```javascript
-const mediaType1 = MediaType.parse('text/plain; charset=UTF-8')
+const mediaType1 = MediaType.parse('text/plain; charset=UTF-8; version=2')
 const mediaType2 = MediaType.parse('text/plain; charset=utf-8')
 
 mediaType1.equals(mediaType2)
 // false
 
-mediaType1.equals(mediaType2, (parameter, value1, value2) =>
-	value1.toLowerCase() === value2.toLowerCase())
+mediaType1.equals(mediaType2, (parameter, value1, value2) => {
+	// ignore 'version' parameter
+	// compare other parameters as case-insensitive
+	return parameter === 'version'
+		|| value1.toLowerCase() === value2.toLowerCase()
+})
 // true
 ```
-
-Two media types are considered equal when all of their properties and
-parameters are equal.
-
-An optional callback for custom parameter value comparison receives
-parameter name as the first argument, parameter value in this media type
-as the second argument, and parameter value in the specified media type
-as the third argument respectively. When a parameter appears only in one
-of the compared media types, this callback is called with `undefined`
-as the corresponding argument. 
-
 
 ### Comparison with wildcards
 Media types can be compared to media types with wildcards (*) using the
 `matches` method.
 
 ```javascript
-const mediaType1 = MediaType.parse('text/plain')
-const mediaType2 = MediaType.parse('text/*')
+const mediaType1 = MediaType.parse('text/plain; encoding=none')
+const mediaType2 = MediaType.parse('text/*; charset=utf-8; encoding=zip')
 
 mediaType1.equals(mediaType2)
 // false
@@ -140,19 +136,10 @@ mediaType1.matches(mediaType2)
 ```
 
 An optional callback for custom parameter value comparison can be
-specified, just like in the `equals` method.
-
-Two media types are considered compatible (i.e. match), according to
-the following rules
-
-* wildcard media type (\*/\*) matches any media type;
-* media type with wildcard subtype (type/\*) matches any media type 
-  with the same type, suffix and parameters;
-* media type without wildcards matches any media type (also without
-  wildcards) when they are equal;
-
+specified, just like [in the `equals` method](#comparison).
 
 ## License
 [MIT](LICENSE.md)
 
-[RFC 6838]: (https://tools.ietf.org/html/rfc6838)
+[RFC 7231]: (https://datatracker.ietf.org/doc/html/rfc7231)
+[RFC 6838]: (https://datatracker.ietf.org/doc/html/rfc6838)
