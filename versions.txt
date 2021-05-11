@@ -17,3 +17,6 @@
 	- Case-insensitive media type parameters
 	- Support for quoted parameter values in media type parsing
 	- Improved media type parsing
+
+1.3.1
+	- Bug fixes and improvements
