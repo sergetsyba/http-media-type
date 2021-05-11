@@ -209,7 +209,7 @@ describe('MediaType', () => {
 			assert.deepEqual(mediaType.parameters, {})
 		})
 
-		it('preserves case when getting all parameters', () => {
+		it('preserves case when getting all properties', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -221,7 +221,7 @@ describe('MediaType', () => {
 			])
 		})
 
-		it('preserves case when iterating parameters', () => {
+		it('preserves case when iterating properties', () => {
 			const mediaType = new MediaType('application', 'json', {
 				CharSet: 'utf-8',
 				variant: 'HAL'
@@ -335,7 +335,7 @@ describe('MediaType', () => {
 			})
 		})
 
-		it('ignores parameters when parameter processing does not return a value', () => {
+		it('ignores parameters with missing processed value', () => {
 			let mediaType = 'application/vnd.company.content; version=1; date=2032-04-17'
 			mediaType = MediaType.parse(mediaType, (parameter, value) => {
 				if (parameter === 'version') {
@@ -367,7 +367,7 @@ describe('MediaType', () => {
 			}, new RepeatedParameterError(['CharSet', 'schema']))
 		})
 
-		it('ignores repeated parameters when parameter processing does not return a value', () => {
+		it('ignores repeated parameters with missing processed value', () => {
 			let mediaType = 'application/vnd.company.content; ' +
 				'date=today; ' +
 				'version=1; ' +
@@ -443,6 +443,12 @@ describe('MediaType', () => {
 				'application/vnd.company.content')
 		})
 
+		it('wildcard', () => {
+			const mediaType = new MediaType()
+			assert.equal(mediaType.formatted,
+				'*/*')
+		})
+
 		it('with wildcard subtype', () => {
 			const mediaType = new MediaType({
 				type: 'application',
@@ -458,12 +464,6 @@ describe('MediaType', () => {
 				'application/*+format; ' +
 				'param1=value1; param2=value2')
 		})
-
-		it('wildcard', () => {
-			const mediaType = new MediaType()
-			assert.equal(mediaType.formatted,
-				'*/*')
-		})
 	})
 
 	describe('checks media type equality', () => {
@@ -471,45 +471,45 @@ describe('MediaType', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
-				suffix: 'format',
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
+				suffix: 'format'
 			})
 
 			const mediaType2 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
-				suffix: 'format',
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
+				suffix: 'format'
 			})
 
 			assert(mediaType1.equals(mediaType2))
 			assert(mediaType2.equals(mediaType1))
 		})
 
-		it('verifies with same media type without parameters', () => {
+		it('verifies with same media type and equal parameters', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
-				suffix: 'format'
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
 			})
 
 			const mediaType2 = new MediaType({
 				type: 'application',
 				subtype: 'vnd.company.content',
-				suffix: 'format'
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
 			})
 
 			assert(mediaType1.equals(mediaType2))
 			assert(mediaType2.equals(mediaType1))
 		})
 
-		it('verifies with same media type with parameters in different case', () => {
+		it('verifies with same media type and equal parameters in different case', () => {
 			const mediaType1 = new MediaType({
 				subtype: 'vnd.company.content',
 				parameters: {
@@ -605,32 +605,6 @@ describe('MediaType', () => {
 			assert(mediaType2.equals(mediaType1) === false)
 		})
 
-		it('does not verify with different parameter count', () => {
-			const mediaType1 = new MediaType({
-				type: 'application',
-				subtype: 'vnd.company.content',
-				suffix: 'format',
-				parameters: {
-					param1: 'value1',
-					param2: 'value2'
-				}
-			})
-
-			const mediaType2 = new MediaType({
-				type: 'application',
-				subtype: 'vnd.company.content',
-				suffix: 'format',
-				parameters: {
-					param1: 'value2',
-					param2: 'value2',
-					param3: 'value3'
-				}
-			})
-
-			assert(mediaType1.equals(mediaType2) === false)
-			assert(mediaType2.equals(mediaType1) === false)
-		})
-
 		it('does not verify with different parameters', () => {
 			const mediaType1 = new MediaType({
 				type: 'application',
@@ -674,6 +648,32 @@ describe('MediaType', () => {
 				parameters: {
 					param1: 'value1',
 					param2: 'value7'
+				}
+			})
+
+			assert(mediaType1.equals(mediaType2) === false)
+			assert(mediaType2.equals(mediaType1) === false)
+		})
+
+		it('does not verify with different parameter count', () => {
+			const mediaType1 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value1',
+					param2: 'value2'
+				}
+			})
+
+			const mediaType2 = new MediaType({
+				type: 'application',
+				subtype: 'vnd.company.content',
+				suffix: 'format',
+				parameters: {
+					param1: 'value2',
+					param2: 'value2',
+					param3: 'value3'
 				}
 			})
 
@@ -810,7 +810,7 @@ describe('MediaType', () => {
 	})
 
 	describe('checks media type match', () => {
-		it('verifies with wildcard type', () => {
+		it('verifies with wildcard', () => {
 			const mediaType1 = MediaType.parse('application/vnd.company.content+format; version=2')
 			const mediaType2 = MediaType.parse('*/*')
 
@@ -826,16 +826,16 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1))
 		})
 
-		it('does not verify with wildcard subtype and parameters', () => {
-			const mediaType1 = MediaType.parse('application/*; charset=UTF-8')
+		it('verifies with wildcard subtype and equal parameters', () => {
+			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
 
-			assert(mediaType1.matches(mediaType2) === false)
-			assert(mediaType2.matches(mediaType1) === false)
+			assert(mediaType1.matches(mediaType2))
+			assert(mediaType2.matches(mediaType1))
 		})
 
-		it('verifies with wildcard subtype and different parameter values', () => {
-			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
+		it('verifies with wildcard subtype and equal parameters in different case', () => {
+			const mediaType1 = MediaType.parse('application/*; CharSet=utf-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
 
 			assert(mediaType1.matches(mediaType2))
@@ -845,6 +845,14 @@ describe('MediaType', () => {
 		it('does not verify with wildcard subtype and different parameters', () => {
 			const mediaType1 = MediaType.parse('application/*; charset=utf-8')
 			const mediaType2 = MediaType.parse('application/json; charset=utf-8; encoding=zip')
+
+			assert(mediaType1.matches(mediaType2) === false)
+			assert(mediaType2.matches(mediaType1) === false)
+		})
+
+		it('does not verify with wildcard subtype and different parameter values', () => {
+			const mediaType1 = MediaType.parse('application/*; charset=UTF-8')
+			const mediaType2 = MediaType.parse('application/json; charset=utf-8')
 
 			assert(mediaType1.matches(mediaType2) === false)
 			assert(mediaType2.matches(mediaType1) === false)
@@ -928,7 +936,7 @@ describe('MediaType', () => {
 			assert(mediaType2.matches(mediaType1, matchParameters) === false)
 		})
 
-		it('verifies with wildcard subtype without parameters', () => {
+		it('verifies with wildcard subtype and without parameters', () => {
 			const mediaType1 = MediaType.parse('application/*')
 			const mediaType2 = MediaType.parse('application/vnd.company.content+format')
 
