@@ -83,9 +83,31 @@ console.log(mediaType.formatted)
 // application/vnd.company.media; version=2; embedded=other-media
 ```
 
+### Parameters
+Media type parameters are case-insensitive when individually accessed by property
+accessors or `in` operator
+```javascript
+const mediaType = new MediaType('application/json; CharSet=utf-8; VARIANT=HAL')
+const charset = mediaType.parameters.charset
+// utf-8
+
+const hasVariant = 'Variant' in mediaType.parameters
+// true
+```
+... but preserve letter case when iterated or retrieved altogether
+```javascript
+const mediaType = new MediaType('application/json; CharSet=utf-8; VARIANT=HAL')
+for (const parameter in mediaType.parameters) {
+	// CharSet
+	// VARIANT
+}
+
+const prameters = Object.keys(mediaType.parameters)
+// ['CharSet', 'VARIANT']
+```
+
 ### Comparison
-Media type instances can be compared for equality using the `equals`
-method
+Media type instances can be compared for equality using the `equals` method
 ```javascript
 const mediaType1 = new MediaType('text', 'plain')
 const mediaType2 = MediaType.parse('text/plain')
@@ -135,8 +157,8 @@ mediaType1.matches(mediaType2)
 // true
 ```
 
-An optional callback for custom parameter value comparison can be
-specified, just like [in the `equals` method](#comparison).
+An custom parameter value comparison can be applied, just like
+[in the `equals` method](#comparison).
 
 ## License
 [MIT](LICENSE.md)
