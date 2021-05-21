@@ -71,7 +71,7 @@ const mediaType = MediaType.parse('application/vnd.company.media+format; version
 ```
 
 ### Formatting
-The `formatted` property holds the textual representation of the media
+The `formatted` property holds the textual representation of a media
 type instance
 ```javascript
 const mediaType = ('application', 'vnd.company.media', {
@@ -84,8 +84,8 @@ console.log(mediaType.formatted)
 ```
 
 ### Parameters
-Media type parameters are case-insensitive when individually accessed by property
-accessors or `in` operator
+Media type parameters are case-insensitive when individually accessed with property
+accessors or with `in` operator
 ```javascript
 const mediaType = new MediaType('application/json; CharSet=utf-8; VARIANT=HAL')
 const charset = mediaType.parameters.charset
