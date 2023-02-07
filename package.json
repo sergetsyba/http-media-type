@@ -29,6 +29,7 @@
 	},
 	"main": "index.js",
 	"scripts": {
+		"test-ci": "mocha --reporter json > test-results.json",
 		"test": "./node_modules/mocha/bin/mocha ./tests"
 	}
 }
